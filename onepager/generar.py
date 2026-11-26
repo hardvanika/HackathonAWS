@@ -526,15 +526,15 @@ JS = r"""
 
 HEAD = """<title>{title}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM, Universidad Europea de Madrid y CUNEF.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Hackathon AWS x SEA">
 <meta property="og:title" content="{title} · Viernes 4 dic, 18:00">
-<meta property="og:description" content="Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<meta property="og:description" content="Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM, Universidad Europea de Madrid y CUNEF.">
 <meta property="og:locale" content="es_ES">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="{title} · Viernes 4 dic, 18:00">
-<meta name="twitter:description" content="Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<meta name="twitter:description" content="Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM, Universidad Europea de Madrid y CUNEF.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap">
 <style>{css}</style>
@@ -561,7 +561,7 @@ SCRIPT_LIVE = r"""<script>
   const $ = (id) => document.getElementById(id); if (!$('live')) return;
   const SVGNS = 'http://www.w3.org/2000/svg';
   const sv = (t, a = {}, ...k) => { const n = document.createElementNS(SVGNS, t); for (const [x, v] of Object.entries(a)) n.setAttribute(x, v); n.append(...k); return n; };
-  const COL = { UC3M: '#FF462E', UPM: '#141414', ICADE: '#8A8A91', UCJC: '#F2A398', UCM: '#9E1F12', UEM: '#55555B', Otra: '#D4D4D8' };
+  const COL = { UC3M: '#FF462E', UPM: '#141414', ICADE: '#8A8A91', UCJC: '#F2A398', UCM: '#9E1F12', UEM: '#55555B', CUNEF: '#C9C9CE', Otra: '#D4D4D8' };
   let start = new Date('2026-12-04T18:00:00+01:00');
   const pad = (n) => String(n).padStart(2, '0');
   function tick() {
@@ -663,7 +663,7 @@ INDEX = f"""
               <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>18:00</span>
               <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg><a href="https://www.google.com/maps/search/?api=1&amp;query=UC3M+Campus+Puerta+de+Toledo+Madrid" target="_blank" rel="noopener">UC3M Puerta de Toledo, aula 0.A.07</a></span>
             </div>
-            <p>Una tarde para montar en AWS las primeras piezas de la plataforma de SEA. 100&nbsp;$ en créditos AWS, entrada y catering gratis, sin experiencia previa y en equipos de hasta 2. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.</p>
+            <p>Una tarde para montar en AWS las primeras piezas de la plataforma de SEA. 100&nbsp;$ en créditos AWS, entrada y catering gratis, sin experiencia previa y en equipos de hasta 2. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM, Universidad Europea de Madrid y CUNEF.</p>
             <div class="ctas">
               <a class="btn o" href="app/#registro">Regístrate →</a>
               <a class="btn d" href="reto.html">Ver el reto →</a>

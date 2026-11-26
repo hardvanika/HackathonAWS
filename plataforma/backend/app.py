@@ -621,7 +621,7 @@ def admin_config(event):
     return resp(200, {"config": get_config()})
 
 
-PUBLIC_UNIS = ("UC3M", "UPM", "ICADE", "UCJC", "UCM", "UEM")
+PUBLIC_UNIS = ("UC3M", "UPM", "ICADE", "UCJC", "UCM", "UEM", "CUNEF")
 _STATS_CACHE = {"at": 0.0, "body": None}
 
 

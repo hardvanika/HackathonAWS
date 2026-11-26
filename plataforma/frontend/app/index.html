@@ -512,7 +512,7 @@
                   <input id="sPass" type="password" autocomplete="new-password" minlength="8" maxlength="128">
                 </div>
                 <label for="sUni">Universidad</label>
-                <select id="sUni"><option>UC3M</option><option>UPM</option><option>ICADE</option><option>UCJC</option><option value="UCM">UCM (Complutense)</option><option value="UEM">Universidad Europea</option><option>Otra</option></select>
+                <select id="sUni"><option>UC3M</option><option>UPM</option><option>ICADE</option><option>UCJC</option><option value="UCM">UCM (Complutense)</option><option value="UEM">Universidad Europea</option><option value="CUNEF">CUNEF</option><option>Otra</option></select>
                 <label class="consent"><input type="checkbox" id="sConsent" required>
                   <span>Acepto que SEA (Spanish Entrepreneurship Association) y el AWS Student Builder Group at UC3M traten mi nombre, email y universidad solo para organizar este hackathon. Se borran después del evento.</span></label>
               </div>
@@ -1099,8 +1099,8 @@
     catch (err) { say('#adminMsg', err.message); }
   }); };
   // ---------- estadísticas ----------
-  const UNIS = ['UC3M', 'UPM', 'ICADE', 'UCJC', 'UCM', 'UEM', 'Otra'];
-  const UNI_COLORS = { UC3M: '#eb6834', UPM: '#1baf7a', ICADE: '#eda100', UCJC: '#e87ba4', UCM: '#2f6fd1', UEM: '#8a5a2b', Otra: '#6250d6' };
+  const UNIS = ['UC3M', 'UPM', 'ICADE', 'UCJC', 'UCM', 'UEM', 'CUNEF', 'Otra'];
+  const UNI_COLORS = { UC3M: '#eb6834', UPM: '#1baf7a', ICADE: '#eda100', UCJC: '#e87ba4', UCM: '#2f6fd1', UEM: '#8a5a2b', CUNEF: '#2a9d8f', Otra: '#6250d6' };
   const SVGNS = 'http://www.w3.org/2000/svg';
   const sv = (tag, attrs = {}, ...kids) => { const n = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); n.append(...kids); return n; };
   let tip;
