@@ -222,8 +222,8 @@ THEME = r"""
   .tl .t { font-weight: 700; }
   /* hero estilo "Próximo evento" de la web del SBG */
   .hero-ev .title { gap: 8px !important; }
-  .hero-k { font-size: 15px; color: var(--white); }
-  .hero-t { color: var(--white) !important; font-weight: 400; font-size: clamp(30px, 3.6vw, 56px); line-height: 1.1; letter-spacing: 0; }
+  .hero-k { font-size: 15px; color: var(--ink); }
+  .hero-t { color: var(--ink) !important; font-weight: 400; font-size: clamp(30px, 3.6vw, 56px); line-height: 1.1; letter-spacing: 0; }
   .hero-ev .quote .hero-q { font-weight: 500; font-size: clamp(36px, 3.4vw, 52px); line-height: 1; }
   .hero-ev .meta a { color: var(--ink); text-decoration-color: var(--red); text-underline-offset: 4px; }
   .hero-ev .tag { background: var(--red); color: var(--ink); text-transform: uppercase; }
@@ -616,7 +616,7 @@ INDEX = f"""
         <div class="deco" aria-hidden="true" style="left:calc(4 * var(--u));top:calc(7 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--ink)"></div>
         <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(6 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--red)"></div>
         <div class="ev hero-ev">
-          <div class="blk in dark title snap">
+          <div class="blk in title snap">
             <p class="mono hero-k">SEA × AWS Student Builder Group:</p>
             <h1 id="evento-t" class="hero-t">Hackathon AWS x SEA</h1>
           </div>
@@ -697,7 +697,7 @@ RETO = f"""<!doctype html>
       {deco(-1, 4, 2, 2, "b")}
       {deco(4, 7, 1, 1, "b")}
       <div class="ev hero-ev reto-ev reto-one">
-        <div class="blk in dark title">
+        <div class="blk in title">
           <p class="mono hero-k">04 / El reto:</p>
           <h1 class="hero-t">La plataforma digital de SEA</h1>
         </div>
