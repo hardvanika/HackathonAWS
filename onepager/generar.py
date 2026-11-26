@@ -525,6 +525,7 @@ JS = r"""
 """
 
 HEAD = """<title>{title}</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%23FF462E'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Noto Sans,Arial,Helvetica,sans-serif' font-weight='800' font-size='33' letter-spacing='-2' fill='%23FFFFFF'%3ESEA%3C/text%3E%3C/svg%3E">
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM, Universidad Europea de Madrid y CUNEF.">
 <meta property="og:type" content="website">
