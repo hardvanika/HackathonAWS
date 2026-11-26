@@ -420,7 +420,7 @@ THEME = r"""
   .cs.home #sea { padding-top: var(--u) !important; }
   .cs .hero-ev { padding-top: var(--u); }
   .cs .reto-one .trk { margin-top: 0 !important; }
-  .page.cs { padding-bottom: calc(2 * var(--u)) !important; }
+  .page.cs { padding-bottom: var(--u) !important; }
   .footL { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 24px !important; }
 """
 CSS = CSS + THEME
