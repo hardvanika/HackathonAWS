@@ -77,7 +77,7 @@
 
   section, header { position: relative; padding-top: calc(2 * var(--u)); }
   header { padding-top: var(--u); }
-  .page.fit { padding-bottom: 0; }
+  .page.fit { padding-bottom: var(--u); }
   .page.fit > footer { display: none; }
   .card { min-height: calc(4 * var(--u)); }
   .card { justify-content: flex-start !important; }
@@ -740,6 +740,10 @@
     const hs = snaps.map(e => e.getBoundingClientRect().height);
     snaps.forEach((e, i) => { e.style.minHeight = Math.max(1, Math.ceil((hs[i] - 0.5) / U)) * U + 'px'; });
     page.classList.remove('measuring');
+    // Alto total en casillas enteras: la cuadrícula acaba en una línea
+    page.style.minHeight = '0px';
+    const ph = Math.ceil((page.getBoundingClientRect().height - 0.5) / U) * U;
+    page.style.minHeight = Math.max(ph, Math.floor(window.innerHeight / U) * U) + 'px';
     busy = false;
   }
   layout();
