@@ -413,6 +413,15 @@ THEME = r"""
   .cs.reto { padding-bottom: var(--u); }
   .cs .nav .brand > .mtitle { font-size: 14px; }
   @media (hover: none) { .btn:hover, .btn:focus, .btn:active { transform: none !important; box-shadow: none !important; } }
+  .login-l { margin: 16px 0 0; font-size: 15px; }
+  .login-l a { font-family: var(--mono); font-weight: 700; color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 4px; }
+  /* Móvil: un hueco de una casilla entre bloques para que se vea la cuadrícula */
+  .cs .ev { row-gap: var(--u); }
+  .cs .g.two, .cs .g.three, .cs .lv-cards { gap: var(--u) !important; }
+  .cs .live { display: grid; gap: var(--u); }
+  .cs.home #sea { padding-top: var(--u) !important; }
+  .cs .hero-ev { padding-top: var(--u); }
+  .cs .reto-one .trk { margin-top: 0 !important; }
   .footL { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 24px !important; }
 """
 CSS = CSS + THEME
@@ -515,7 +524,7 @@ def nav(current):
       <nav class="links" aria-label="Principal">
         <a href="./"{home_cur}>Inicio</a>
         <a href="reto.html"{reto_cur}>El reto</a>
-        <a class="btn o sm" href="app/">Panel →</a>
+        <a class="btn o sm" href="app/#registro">Apúntate →</a>
       </nav>
     </div>
   </div>"""
@@ -637,6 +646,7 @@ INDEX = f"""
               <a class="btn o" href="app/#registro">Regístrate →</a>
               <a class="btn d" href="reto.html">Ver el reto →</a>
             </div>
+            <p class="login-l">¿Ya tienes cuenta? <a href="app/">Iniciar sesión →</a></p>
           </div>
         </div>
       </div>
