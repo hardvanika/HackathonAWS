@@ -48,9 +48,9 @@ TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{20,64}$")
 # Lo que no esta confirmado se deja vacio: los admins lo rellenan desde el panel.
 DEFAULT_CONFIG = {
     "eventName": "Hackathon AWS Student Builder Group at UC3M x SEA",
-    "eventStart": "2026-12-03T18:00:00+01:00",
+    "eventStart": "2026-12-04T18:00:00+01:00",
     "location": "UC3M, campus de Puerta de Toledo",
-    "submissionDeadline": "2026-12-03T20:00:00+01:00",  # jueves 3 dic, 20:00: 2 h después del inicio (Ivan, 26 nov)
+    "submissionDeadline": "2026-12-04T20:00:00+01:00",  # viernes 4 dic, 20:00: 2 h después del inicio (Ivan, 26 nov)
     # Timeline del dia. Hora vacia = "por confirmar". Se edita desde el panel (Ajustes).
     "agenda": [
         {"time": "18:00", "title": "Llegada y registro", "detail": "Recogemos tu nombre y te damos acceso."},
@@ -600,7 +600,7 @@ def admin_config(event):
         raise HttpError(400, f"Claves no validas: {', '.join(sorted(bad))}")
     for k in ("eventStart", "submissionDeadline", "timerStart"):
         if data.get(k) and not parse_dt(data[k]):
-            raise HttpError(400, f"{k}: usa formato ISO, p.ej. 2026-12-03T21:00:00+01:00")
+            raise HttpError(400, f"{k}: usa formato ISO, p.ej. 2026-12-04T21:00:00+01:00")
     if "links" in data:
         if not isinstance(data["links"], dict):
             raise HttpError(400, "links tiene que ser un objeto")

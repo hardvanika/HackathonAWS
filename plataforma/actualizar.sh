@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Actualiza la configuración guardada (objetivo 70, cierre viernes 4 dic 18:00, enlaces) y redespliega.
+# Actualiza la configuración guardada (objetivo 70, inicio viernes 4 dic 18:00, cierre 20:00, enlaces) y redespliega.
 # Uso: bash actualizar.sh   (desde hackathon/plataforma, con la sesión de AWS abierta: aws login --profile default)
 set -euo pipefail
 export AWS_PROFILE=default REGION=eu-north-1
@@ -10,10 +10,11 @@ echo "Tabla: $TABLE"
 aws dynamodb update-item --region "$REGION" --table-name "$TABLE" \
   --key '{"PK":{"S":"CONFIG"},"SK":{"S":"EVENT"}}' \
   --condition-expression "attribute_exists(PK)" \
-  --update-expression "SET goal = :g, submissionDeadline = :d, links = :l" \
+  --update-expression "SET goal = :g, eventStart = :s, submissionDeadline = :d, links = :l" \
   --expression-attribute-values '{
     ":g": {"N": "70"},
-    ":d": {"S": "2026-12-03T20:00:00+01:00"},
+    ":s": {"S": "2026-12-04T18:00:00+01:00"},
+    ":d": {"S": "2026-12-04T20:00:00+01:00"},
     ":l": {"M": {
       "website": {"S": "https://db1470yzxtmai.cloudfront.net/"},
       "meetup": {"S": "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/"},
