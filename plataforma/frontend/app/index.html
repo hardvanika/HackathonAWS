@@ -193,7 +193,7 @@
   .agenda b { font-family: var(--mono); font-weight: 500; min-width: 56px; }
   /* móvil (Ivan 26 nov) */
   .cs #dash header .dark .eyebrow, .cs #eventLine { display: none; }
-  .cs #dash header .dark { min-height: 0 !important; padding-top: 24px; padding-bottom: 24px; }
+  .cs #dash header .dark { padding-top: 24px; padding-bottom: 24px; }
   .cs .nav .brand { font-size: 13px; white-space: nowrap; overflow: visible; flex: 0 0 auto; }
   .cs .nav .brand .mtitle { font-size: 13px; }
   .cs .nav .col { gap: 8px; }
@@ -203,7 +203,7 @@
   .cs .nav .brand .mtitle, .cs .nav .brand > .mtitle { font-size: 12px !important; }
   .cs .tabs { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .cs .tabs button { margin: 0 !important; font-size: 11px; padding: 12px 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: inset 0 0 0 .5px var(--ink); }
-  .cs .adm-title { min-height: 0 !important; padding-top: 24px !important; padding-bottom: 24px !important; }
+  .cs .adm-title { padding-top: 24px !important; padding-bottom: 24px !important; }
   .cs .adm-title h1 { font-size: 26px; }
   .cs .st-wrap .st-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cs .adm-panel { padding-left: 16px !important; padding-right: 16px !important; }
@@ -446,7 +446,7 @@
 
   /* marca solo texto; pie fino */
   .nav .brand > .mtitle, .cs .nav .brand > .mtitle { display: inline; font-size: 16px; white-space: nowrap; }
-  .foot > .blk { min-height: var(--u) !important; padding-top: 12px !important; padding-bottom: 12px !important; }
+  .foot > .blk { min-height: var(--u); padding-top: 12px !important; padding-bottom: 12px !important; }
 </style>
 </head>
 <body>
@@ -472,7 +472,7 @@
       <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
       <div class="g side">
         <div class="blk in dark snap">
-          <p class="eyebrow o">08 / Plataforma</p>
+          <p class="eyebrow o">Plataforma</p>
           <h1>Tu cuenta del hackathon</h1>
           <p class="lead muted">Crea tu cuenta con el mismo nombre completo que pusiste en Meetup. Aquí tendrás tu checklist, tu pareja y la entrega del proyecto.</p>
           <p class="small muted" id="authHint">Entra con tu email.</p>
@@ -543,7 +543,7 @@
         <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
         <div class="g two">
           <div class="blk in dark snap">
-            <p class="eyebrow o">08 / Plataforma</p>
+            <p class="eyebrow o">Plataforma</p>
             <h1 id="hello">Hola</h1>
             <p class="lead muted" id="eventLine"></p>
             <p id="announce" class="banner hidden"></p>
@@ -563,7 +563,7 @@
       <div class="col">
         <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--red)"></div>
         <div class="blk in snap" style="padding-top:40px;padding-bottom:40px">
-          <p class="eyebrow">09 / Checklist</p>
+          <p class="eyebrow">Checklist</p>
           <h2 id="checks-t">Antes del viernes 4 de diciembre</h2>
         </div>
         <div class="g two checks" id="checks"></div>
@@ -575,7 +575,7 @@
         <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
         <div class="g two">
           <div class="blk in snap" style="justify-content:flex-start">
-            <p class="eyebrow">10 / Equipo</p>
+            <p class="eyebrow">Equipo</p>
             <h2 id="team-t">Tu equipo</h2>
             <div id="teamBox" style="display:flex;flex-direction:column;gap:12px"></div>
             <div class="msg" id="teamMsg" role="status"></div>
@@ -593,7 +593,7 @@
       <div class="col">
         <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
         <form class="blk in snap" id="subForm" style="justify-content:flex-start">
-          <p class="eyebrow">11 / Entrega</p>
+          <p class="eyebrow">Entrega</p>
           <h2 id="sub-t">Entrega del proyecto</h2>
           <p class="small muted" id="subState">Necesitas estar en un equipo para entregar. Una persona entrega por todo el equipo y se puede actualizar hasta el cierre.</p>
           <div class="fields">
@@ -618,7 +618,7 @@
   <header id="admin" class="hidden">
     <div class="col">
       <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
-      <div class="blk in dark adm-title">
+      <div class="blk in dark adm-title snap">
         <h1>Panel de organización</h1>
       </div>
       <div class="tabs snap" role="tablist" id="adminTabs" aria-label="Secciones">
@@ -733,8 +733,8 @@
     document.querySelectorAll('.nav .col').forEach(c => { c.style.marginLeft = left + 'px'; });
     root.style.setProperty('--cx', left + 'px');
     root.style.setProperty('--gx', left + 'px');
-    page.querySelectorAll('.col').forEach(c => { c.style.width = colW + 'px'; c.style.maxWidth = 'none'; });
-    const snaps = [...page.querySelectorAll('.snap')];
+    document.querySelectorAll('.col').forEach(c => { c.style.width = colW + 'px'; c.style.maxWidth = 'none'; });
+    const snaps = [...document.querySelectorAll('.snap')];
     page.classList.add('measuring');
     snaps.forEach(e => { e.style.minHeight = ''; });
     const hs = snaps.map(e => e.getBoundingClientRect().height);

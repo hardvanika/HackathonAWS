@@ -109,10 +109,10 @@ CSS = r"""
   .cs .btn { padding: 12px 18px; font-size: 15px; }
   .page:not(.wide) .deco { display: none; }
   .mono { font-family: var(--mono); }
-  .c16 .foot { grid-template-columns: calc(7 * var(--u)) calc(9 * var(--u)); }
-  .c12 .foot { grid-template-columns: calc(12 * var(--u)); }
+  .c16 .foot, body:has(.page.c16) .foot { grid-template-columns: calc(7 * var(--u)) calc(9 * var(--u)); }
+  .c12 .foot, body:has(.page.c12) .foot { grid-template-columns: calc(12 * var(--u)); }
   .cs .foot { grid-template-columns: 1fr; }
-  .foot > .blk { min-height: calc(2 * var(--u)); }
+  .foot > .blk { min-height: var(--u); padding-top: 12px !important; padding-bottom: 12px !important; }
   .cs .ev .quote { --pad: 20px; }
 
   /* bloque "evento" (como el de la web del SBG) */
@@ -278,8 +278,8 @@ THEME = r"""
   .cs.home .nav .links { display: none; }
   .cs.home header, .cs.home #sea { padding-top: 0; }
   .cs.home .hero-ev .title, .cs.home .hero-ev .quote, .cs.home #sea .live, .cs.home > footer, .cs.home .deco { display: none; }
-  .cs.home .hero-ev .main { min-height: 0 !important; padding-top: 28px; padding-bottom: 28px; }
-  .cs.home #sea .dark { min-height: 0 !important; padding-top: 28px; padding-bottom: 28px; }
+  .cs.home .hero-ev .main { padding-top: 28px; padding-bottom: 28px; }
+  .cs.home #sea .dark { padding-top: 28px; padding-bottom: 28px; }
   .cs.home { padding-bottom: 0; }
   /* módulos: seis circulitos sobre la retícula; al pasar el ratón se abre la explicación debajo */
   .trk { padding: 0 calc(2 * var(--u)); }
@@ -421,6 +421,9 @@ THEME = r"""
   .cs .hero-ev { padding-top: var(--u); }
   .cs .reto-one .trk { margin-top: 0 !important; }
   .page.cs { padding-bottom: var(--u) !important; }
+  .dark .hero-k, .dark .hero-t { color: var(--white) !important; }
+  body:has(.page:not(.cs)) { background-color: var(--paper); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: var(--u) var(--u); background-position: var(--gx, 0px) 0; }
+  body:has(.page:not(.cs)) footer { padding-bottom: var(--u); }
   .footL { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 24px !important; }
 """
 CSS = CSS + THEME
@@ -488,13 +491,26 @@ JS = r"""
     document.querySelectorAll('.nav .col').forEach(c => { c.style.marginLeft = left + 'px'; });
     root.style.setProperty('--cx', left + 'px');
     root.style.setProperty('--gx', left + 'px');
-    page.querySelectorAll('.col').forEach(c => { c.style.width = colW + 'px'; c.style.maxWidth = 'none'; });
-    const snaps = [...page.querySelectorAll('.snap')];
+    document.querySelectorAll('.col').forEach(c => { c.style.width = colW + 'px'; c.style.maxWidth = 'none'; });
+    const snaps = [...document.querySelectorAll('.snap')];
     page.classList.add('measuring');
     snaps.forEach(e => { e.style.minHeight = ''; });
     const hs = snaps.map(e => e.getBoundingClientRect().height);
     snaps.forEach((e, i) => { e.style.minHeight = Math.max(1, Math.ceil((hs[i] - 0.5) / U)) * U + 'px'; });
     page.classList.remove('measuring');
+    // Filas de las rejillas explícitas (reto) redondeadas a casillas enteras
+    page.querySelectorAll('.ev').forEach(g => {
+      g.style.gridTemplateRows = '';
+      if (mode === 'cs') return;
+      const rows = getComputedStyle(g).gridTemplateRows.split(' ').map(parseFloat).filter(n => n > 0);
+      if (rows.length && rows.some(h => Math.abs(h / U - Math.round(h / U)) > 0.01)) {
+        g.style.gridTemplateRows = rows.map(h => Math.max(1, Math.ceil((h - 0.5) / U)) * U + 'px').join(' ');
+      }
+    });
+    // Alto total de la página en casillas enteras (el pie queda en la cuadrícula)
+    page.style.minHeight = '';
+    const ph = page.getBoundingClientRect().height;
+    page.style.minHeight = Math.ceil((ph - 0.5) / U) * U + 'px';
     busy = false;
   }
   window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); });
@@ -523,7 +539,6 @@ def nav(current):
       <nav class="links" aria-label="Principal">
         <a href="./"{home_cur}>Inicio</a>
         <a href="reto.html"{reto_cur}>El reto</a>
-        <a class="btn o sm" href="app/#registro">Apúntate →</a>
       </nav>
     </div>
   </div>"""
@@ -588,23 +603,19 @@ FOOT = """
   <footer aria-label="Pie" style="position:relative">
     <div class="col">
       <div class="g foot">
-        <div class="blk in footL snap">
-          <div>
-            <p class="ven">Como SEA, pero ven.</p>
-            <p class="unis">UC3M / UPM / ICADE / UCJC / UCM / UEM</p>
-          </div>
-          <svg class="arrow" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 86 L80 20 M30 18 H82 V70" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="square"/></svg>
+        <div class="blk o-bg in snap" style="align-items:center;text-align:center">
+          <p class="mono" style="font-size:15px;line-height:1.4">AWS Student Builder Group at UC3M x SEA</p>
         </div>
         <nav class="blk dark in snap" aria-label="Enlaces del pie" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 32px">
-          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
-          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Meetup</a>
-          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
-          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="reto.html">El reto</a>
-          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="app/#registro">Apúntate</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Meetup</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="reto.html">El reto</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="app/#registro">Apúntate</a>
         </nav>
       </div>
       <div class="blk in snap" style="align-items:center;text-align:center;padding-top:16px;padding-bottom:16px">
-        <p class="mono" style="font-size:13px;color:var(--muted)">Hackathon organizado por estudiantes de SEA (Spanish Entrepreneurship Association) y el AWS Student Builder Group at UC3M. © 2026</p>
+        <p style="font-size:13px;color:var(--muted)">Hackathon organizado por estudiantes del AWS Student Builder Group at UC3M y SEA. © 2026</p>
       </div>
     </div>
   </footer>"""
@@ -624,7 +635,7 @@ INDEX = f"""
         <div class="deco" aria-hidden="true" style="left:calc(4 * var(--u));top:calc(7 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--ink)"></div>
         <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(6 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--red)"></div>
         <div class="ev hero-ev">
-          <div class="blk in title snap">
+          <div class="blk in dark title snap">
             <p class="mono hero-k">SEA × AWS Student Builder Group:</p>
             <h1 id="evento-t" class="hero-t">Hackathon AWS x SEA</h1>
           </div>
@@ -658,23 +669,23 @@ INDEX = f"""
         {deco(-2, 3, 1, 1, "o")}
         <div class="g two">
           <div class="blk in dark snap">
-            <p class="eyebrow o">02 / Quiénes somos</p>
+            <p class="eyebrow o">Quiénes somos</p>
             <h2 id="sea-t">¿Qué es SEA?</h2>
             <p class="lead muted">SEA (Spanish Entrepreneurship Association) es la plataforma que une a los clubs de emprendimiento universitario de Madrid para promover el emprendimiento entre estudiantes.</p>
           </div>
           <div class="live" id="live" aria-labelledby="lv-t">
             <div class="lv-top blk in snap">
-              <p class="eyebrow" id="lv-t">03 / En directo · Falta para el hackathon</p>
+              <p class="eyebrow" id="lv-t">En directo · Falta para el hackathon</p>
               <p class="lv-cd" id="lvCd" aria-live="off">– d –:–:–</p>
               <p class="small muted">Viernes 4 de diciembre · 18:00 · UC3M Puerta de Toledo</p>
             </div>
-            <div class="lv-kpis">
+            <div class="lv-kpis snap">
               <div><p class="lv-n" id="lvTotal">–</p><p class="small">inscritos</p></div>
               <div><p class="lv-n" id="lvToday">–</p><p class="small">hoy</p></div>
               <div><p class="lv-n" id="lvTeams">–</p><p class="small">equipos</p></div>
               <div><p class="lv-n" id="lvInTeam">–</p><p class="small">personas en equipo</p></div>
             </div>
-            <div class="lv-cards">
+            <div class="lv-cards snap">
               <figure class="blk in lv-card"><figcaption><h3>Por universidad</h3></figcaption><div id="lvUni" class="lv-uni"><p class="small muted">Cargando…</p></div></figure>
               <figure class="blk in lv-card"><figcaption><h3>Inscripciones por día</h3></figcaption><div id="lvDays" class="lv-days"><p class="small muted">Cargando…</p></div></figure>
             </div>
@@ -705,26 +716,26 @@ RETO = f"""<!doctype html>
       {deco(-1, 4, 2, 2, "b")}
       {deco(4, 7, 1, 1, "b")}
       <div class="ev hero-ev reto-ev reto-one">
-        <div class="blk in title">
-          <p class="mono hero-k">04 / El reto:</p>
+        <div class="blk in dark title snap">
+          <p class="mono hero-k">El reto</p>
           <h1 class="hero-t">La plataforma digital de SEA</h1>
         </div>
         <div class="blk in quote o-bg">
           <h3 class="hero-q">Catering<br>gratis.</h3>
           <p>"El combustible corre de nuestra cuenta."</p>
         </div>
-        <div class="blk in main">
+        <div class="blk in main snap">
           <p class="tag">Una tarde · sin experiencia previa</p>
           <h2>Elige un módulo y móntalo en AWS</h2>
           <p>SEA necesita su propia plataforma. En el hackathon construyes una de sus piezas, de principio a fin.</p>
           <div class="reto-facts">
-            <div><p class="num">01</p><div><h3>Solo o en pareja</h3><p class="small">Equipos de 2 personas como máximo.</p></div></div>
-            <div><p class="num">02</p><div><h3>Builder Center + 100&nbsp;$</h3><p class="small">Acceso a AWS Builder Center y 100&nbsp;$ en créditos para la consola.</p></div></div>
+            <div><div><h3>Solo o en pareja</h3><p class="small">Equipos de 2 personas como máximo.</p></div></div>
+            <div><div><h3>Builder Center + 100&nbsp;$</h3><p class="small">Acceso a AWS Builder Center y 100&nbsp;$ en créditos para la consola.</p></div></div>
           </div>
         </div>
         <div class="trk" id="trk" role="group" aria-labelledby="mods-t">
-          <div class="trk-h">
-            <p class="eyebrow">05 / Las partes</p>
+          <div class="trk-h snap">
+            <p class="eyebrow">Las partes</p>
             <h2 id="mods-t">Seis módulos, elige uno</h2>
           </div>
           <ol class="trk-row" aria-label="Módulos">
@@ -735,7 +746,7 @@ RETO = f"""<!doctype html>
             <li><button type="button" class="trk-b" data-i="4" aria-controls="trkP" aria-label="Módulo 5: Panel de cuotas">5</button></li>
             <li><button type="button" class="trk-b" data-i="5" aria-controls="trkP" aria-label="Módulo 6: Comunicación entre clubs">6</button></li>
           </ol>
-          <div class="trk-p blk" id="trkP" aria-live="polite">
+          <div class="trk-p blk snap" id="trkP" aria-live="polite">
             <p class="trk-hint">Pasa el ratón (o toca) un número para ver cada módulo.</p>
             <div class="trk-d" data-i="0"><p class="num">1</p><div><h3>Web pública</h3><p class="small">La cara de SEA: clubs, eventos y cómo unirse.</p></div></div>
             <div class="trk-d" data-i="1"><p class="num">2</p><div><h3>Solicitudes</h3><p class="small">Formulario y flujo para que los nuevos miembros apliquen.</p></div></div>
