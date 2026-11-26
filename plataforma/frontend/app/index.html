@@ -526,7 +526,7 @@
               <h3>Tres enlaces y listo</h3>
               <p class="small">Usa tu nombre completo en Meetup y aquí: así cruzamos las inscripciones. Solo o en pareja, gratis.</p>
             </div>
-            <div class="blk in row snap"><p class="num">01</p><div><h3>Meetup</h3><p class="small">La inscripción oficial va por el Meetup del AWS Student Builder Group at UC3M. Apúntate con tu nombre completo.</p><a class="btn o sm" style="align-self:flex-start" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Apuntarme en Meetup →</a></div></div>
+            <div class="blk in row snap"><p class="num">01</p><div><h3>Meetup</h3><p class="small">La inscripción oficial va por el Meetup del AWS Student Builder Group at UC3M. Apúntate con tu nombre completo.</p><a class="btn o sm" style="align-self:flex-start" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/" target="_blank" rel="noopener">Apuntarme en Meetup →</a></div></div>
             <div class="blk in row snap"><p class="num">02</p><div><h3>Plataforma del hackathon</h3><p class="small">Crea tu cuenta arriba con el mismo nombre. Aquí verás tu checklist, formarás pareja y entregarás el proyecto.</p></div></div>
             <div class="blk in row snap"><p class="num">03</p><div><h3>AWS Builder Center</h3><p class="small">Crea tu perfil y únete al grupo. Te damos acceso y 100 $ en créditos de AWS.</p><a class="btn d sm" style="align-self:flex-start" href="https://builder.aws.com" target="_blank" rel="noopener">Regístrate →</a></div></div>
           </div>
@@ -700,7 +700,7 @@
         </div>
         <nav class="blk dark in snap" aria-label="Enlaces del pie" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 32px">
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
-          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Meetup</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/" target="_blank" rel="noopener">Meetup</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="../reto.html">El reto</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="#registro">Apúntate</a>
@@ -1034,7 +1034,7 @@
     // Enlaces
     const ul = $('#links');
     if (ul) { ul.replaceChildren();
-    const labels = { website: 'Web del hackathon', meetup: 'Meetup del AWS Student Builder Group', whatsapp: 'Grupo de WhatsApp', builderCenter: 'AWS Builder Center', awsSignup: 'Crear cuenta de AWS', mfaDocs: 'Cómo activar MFA en root', budgetDocs: 'Cómo crear una alerta de presupuesto', awsConsole: 'Consola de AWS', ai: 'Kiro (asistente de IA de AWS)', aiClaude: 'Claude Code' };
+    const labels = { website: 'Web del hackathon', meetup: 'Evento en Meetup', whatsapp: 'Grupo de WhatsApp', builderCenter: 'AWS Builder Center', awsSignup: 'Crear cuenta de AWS', mfaDocs: 'Cómo activar MFA en root', budgetDocs: 'Cómo crear una alerta de presupuesto', awsConsole: 'Consola de AWS', ai: 'Kiro (asistente de IA de AWS)', aiClaude: 'Claude Code' };
     Object.entries(L).forEach(([k, v]) => { if (v) ul.append(el('li', {}, el('a', { href: v, target: '_blank', rel: 'noopener', text: labels[k] || k }))); }); }
 
     // Entrega

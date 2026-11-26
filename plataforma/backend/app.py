@@ -68,7 +68,7 @@ DEFAULT_CONFIG = {
     "requiredChecks": ["mfaRoot", "budget"],
     "links": {
         "website": "https://db1470yzxtmai.cloudfront.net/",
-        "meetup": "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/",
+        "meetup": "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/",
         "whatsapp": "https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T",
         "builderCenter": "https://builder.aws.com",
         "awsSignup": "https://aws.amazon.com/free",

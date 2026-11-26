@@ -21,7 +21,7 @@ aws dynamodb update-item --region "$REGION" --table-name "$TABLE" \
     ":d": {"S": "2026-12-04T20:00:00+01:00"},
     ":l": {"M": {
       "website": {"S": "https://db1470yzxtmai.cloudfront.net/"},
-      "meetup": {"S": "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/"},
+      "meetup": {"S": "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/"},
       "whatsapp": {"S": "https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T"},
       "builderCenter": {"S": "https://builder.aws.com"},
       "awsSignup": {"S": "https://aws.amazon.com/free"},

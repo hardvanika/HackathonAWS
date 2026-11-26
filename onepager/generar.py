@@ -1,7 +1,7 @@
 """Genera index.html y reto.html del hackathon con la maqueta de la web del SBG UC3M."""
 import os
 OUT = "/mnt/project-files/hackathon/onepager"
-MEETUP = "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/"
+MEETUP = "https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/"
 
 CSS = r"""
   /* Layout: copia de la web del SBG UC3M. Retícula de celdas --u (80 px escritorio, 64 tablet, 48 móvil); columna de 16/12/N celdas;
@@ -620,7 +620,7 @@ FOOT = """
         </div>
         <nav class="blk dark in snap" aria-label="Enlaces del pie" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 32px">
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
-          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Meetup</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/" target="_blank" rel="noopener">Meetup</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="reto.html">El reto</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="app/#registro">Apúntate</a>
