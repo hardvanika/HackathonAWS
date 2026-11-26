@@ -1,0 +1,181 @@
+<title>Plataforma del hackathon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+  /* Layout: una columna de lectura con el diagrama a todo el ancho; tokens de la landing del hackathon */
+  :root {
+    --bg: #f6f7fb; --fg: #111831; --muted: #4c5573; --line: #c8cfe0; --box: #ffffff; --soft: #eceff7;
+    --accent: #b85f00; --accent-fill: #fff1de; --ok: #157a3c; --warn: #9a6400;
+    --display: "Space Grotesk", Inter, system-ui, sans-serif; --body: Inter, system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0b1020; --fg: #f2f4f8; --muted: #b0b9cf; --line: #2e3a5c; --box: #16203a; --soft: #121a30;
+    --accent: #ff9f1c; --accent-fill: #2a1f0e; --ok: #4ade80; --warn: #fbbf24; color-scheme: dark } }
+  :root[data-theme="dark"] {
+    --bg: #0b1020; --fg: #f2f4f8; --muted: #b0b9cf; --line: #2e3a5c; --box: #16203a; --soft: #121a30;
+    --accent: #ff9f1c; --accent-fill: #2a1f0e; --ok: #4ade80; --warn: #fbbf24; color-scheme: dark }
+  body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+  .wrap { max-width: 980px; margin: 0 auto; padding-block: 32px 64px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font-family: var(--display); font-size: clamp(30px, 5vw, 44px); line-height: 1.1; margin: 6px 0 10px; text-wrap: balance; }
+  h2 { font-family: var(--display); font-size: 24px; margin: 48px 0 12px; text-wrap: balance; }
+  h3 { font-size: 17px; margin: 0 0 6px; }
+  p, li { max-width: 68ch; }
+  .lead { color: var(--muted); font-size: 18px; }
+  .diagram { overflow-x: auto; margin-top: 24px; border: 1px solid var(--line); border-radius: 14px; background: var(--soft); padding: 12px; }
+  .diagram svg { display: block; min-width: 760px; width: 100%; height: auto; }
+  svg text { font-family: var(--body); fill: var(--fg); }
+  svg .muted { fill: var(--muted); }
+  svg .box { fill: var(--box); stroke: var(--line); stroke-width: 1.5; }
+  svg .hl { fill: var(--accent-fill); stroke: var(--accent); stroke-width: 1.5; }
+  svg .frame { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 6 5; }
+  svg .arrow { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  svg .arrow.dash { stroke-dasharray: 4 4; }
+  svg .head { fill: var(--muted); }
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+  .panel { background: var(--box); border: 1px solid var(--line); border-radius: 12px; padding: 18px; min-width: 0; }
+  .panel p { margin: 0 0 8px; color: var(--muted); font-size: 15px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; border: 1px solid currentColor; }
+  .tag.ok { color: var(--ok); } .tag.warn { color: var(--warn); }
+  .tbl { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  ol.steps li, ul li { margin-bottom: 6px; }
+  code { font-size: 14px; background: var(--soft); padding: 1px 5px; border-radius: 5px; }
+  .note { border-left: 3px solid var(--accent); padding: 4px 0 4px 14px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <div class="eyebrow">AWS Student Builder Group at UC3M x SEA</div>
+  <h1>Plataforma de participantes del hackathon</h1>
+  <p class="lead">Un portal donde cada persona ve horario y enlaces, deja listos los pasos previos, forma equipo y entrega repo y demo. Todo serverless en la cuenta de SEA (eu-south-2), con coste prácticamente cero.</p>
+
+  <div class="diagram" role="img" aria-label="Diagrama de arquitectura: el navegador entra por CloudFront, que sirve la web desde S3 y manda /api a API Gateway, Lambda y DynamoDB. Cognito con SES hace el login por código. Una plantilla en la cuenta del participante informa a la API.">
+    <svg viewBox="0 0 960 560" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="h" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="head" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+
+      <rect class="frame" x="215" y="20" width="730" height="400" rx="14"/>
+      <text x="232" y="44" font-size="13" font-weight="700">Cuenta de SEA · eu-south-2</text>
+
+      <!-- personas -->
+      <rect class="box" x="20" y="232" width="150" height="66" rx="10"/>
+      <text x="95" y="260" text-anchor="middle" font-size="14" font-weight="700">Participante</text>
+      <text x="95" y="280" text-anchor="middle" font-size="12" class="muted">navegador</text>
+      <rect class="box" x="20" y="330" width="150" height="60" rx="10"/>
+      <text x="95" y="356" text-anchor="middle" font-size="14" font-weight="700">Organización</text>
+      <text x="95" y="374" text-anchor="middle" font-size="12" class="muted">panel admin</text>
+      <rect class="box" x="20" y="452" width="150" height="56" rx="10"/>
+      <text x="95" y="477" text-anchor="middle" font-size="14" font-weight="700">Meetup</text>
+      <text x="95" y="495" text-anchor="middle" font-size="12" class="muted">export de asistentes</text>
+
+      <!-- edge -->
+      <rect class="box" x="250" y="150" width="140" height="50" rx="10"/>
+      <text x="320" y="172" text-anchor="middle" font-size="13" font-weight="700">Route 53</text>
+      <text x="320" y="189" text-anchor="middle" font-size="11" class="muted">opcional · dominio</text>
+      <rect class="hl" x="250" y="236" width="140" height="62" rx="10"/>
+      <text x="320" y="262" text-anchor="middle" font-size="14" font-weight="700">CloudFront</text>
+      <text x="320" y="281" text-anchor="middle" font-size="11" class="muted">una sola URL</text>
+
+      <!-- auth -->
+      <rect class="box" x="450" y="62" width="180" height="62" rx="10"/>
+      <text x="540" y="88" text-anchor="middle" font-size="14" font-weight="700">Cognito</text>
+      <text x="540" y="107" text-anchor="middle" font-size="11" class="muted">login con código al email</text>
+      <rect class="box" x="680" y="62" width="130" height="62" rx="10"/>
+      <text x="745" y="88" text-anchor="middle" font-size="14" font-weight="700">SES</text>
+      <text x="745" y="107" text-anchor="middle" font-size="11" class="muted">envía los códigos</text>
+
+      <!-- web + api -->
+      <rect class="box" x="450" y="160" width="180" height="58" rx="10"/>
+      <text x="540" y="185" text-anchor="middle" font-size="14" font-weight="700">S3</text>
+      <text x="540" y="203" text-anchor="middle" font-size="11" class="muted">landing + portal /app/</text>
+      <rect class="box" x="450" y="282" width="180" height="62" rx="10"/>
+      <text x="540" y="308" text-anchor="middle" font-size="14" font-weight="700">API Gateway HTTP</text>
+      <text x="540" y="327" text-anchor="middle" font-size="11" class="muted">/api/* · JWT de Cognito</text>
+      <rect class="hl" x="680" y="282" width="110" height="62" rx="10"/>
+      <text x="735" y="308" text-anchor="middle" font-size="14" font-weight="700">Lambda</text>
+      <text x="735" y="327" text-anchor="middle" font-size="11" class="muted">Python</text>
+      <rect class="box" x="815" y="282" width="115" height="62" rx="10"/>
+      <text x="872" y="308" text-anchor="middle" font-size="14" font-weight="700">DynamoDB</text>
+      <text x="872" y="327" text-anchor="middle" font-size="11" class="muted">perfiles, equipos</text>
+
+      <!-- participant account -->
+      <rect class="frame" x="215" y="448" width="470" height="96" rx="14"/>
+      <text x="232" y="470" font-size="13" font-weight="700">Cuenta AWS del participante</text>
+      <rect class="hl" x="232" y="480" width="300" height="50" rx="10"/>
+      <text x="382" y="502" text-anchor="middle" font-size="13" font-weight="700">Stack “hackathon-checkin”</text>
+      <text x="382" y="519" text-anchor="middle" font-size="11" class="muted">Lambda de solo lectura: MFA root, presupuesto</text>
+
+      <!-- flechas -->
+      <path class="arrow" d="M170,265 H248" marker-end="url(#h)"/>
+      <path class="arrow" d="M170,360 C210,360 220,290 248,285" marker-end="url(#h)"/>
+      <path class="arrow" d="M95,452 V392" marker-end="url(#h)"/>
+      <text x="103" y="428" font-size="11" class="muted">CSV</text>
+      <path class="arrow dash" d="M320,200 V234" marker-end="url(#h)"/>
+      <path class="arrow" d="M390,252 C420,252 420,189 448,189" marker-end="url(#h)"/>
+      <path class="arrow" d="M390,283 C420,283 420,313 448,313" marker-end="url(#h)"/>
+      <path class="arrow" d="M630,313 H678" marker-end="url(#h)"/>
+      <path class="arrow" d="M790,313 H813" marker-end="url(#h)"/>
+      <path class="arrow" d="M630,93 H678" marker-end="url(#h)"/>
+      <path class="arrow" d="M95,232 V93 H448" marker-end="url(#h)"/>
+      <text x="110" y="86" font-size="11" class="muted">email → código → token</text>
+      <path class="arrow dash" d="M735,282 C735,200 640,150 600,126" marker-end="url(#h)"/>
+      <text x="700" y="200" font-size="11" class="muted">alta del usuario</text>
+      <path class="arrow" d="M480,480 C480,420 520,390 530,346" marker-end="url(#h)"/>
+      <text x="540" y="410" font-size="11" class="muted">POST /api/checkin</text>
+    </svg>
+  </div>
+
+  <h2>Por qué serverless y no EC2</h2>
+  <p>Tu lista era EC2 + DynamoDB + API Gateway + Route 53 + SQS o SES. Me quedo con casi todo y cambio la EC2 por S3 + CloudFront para la web y Lambda para la lógica.</p>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>EC2</th><th>S3 + CloudFront + Lambda</th></tr></thead>
+    <tbody>
+      <tr><td>Coste</td><td class="num">~8–10 €/mes encendida 24/7</td><td class="num">~0 € con este tráfico</td></tr>
+      <tr><td>Mantenimiento</td><td>Parches, SSH, reinicios, disco</td><td>Nada que parchear</td></tr>
+      <tr><td>Pico del día 2</td><td>Una máquina; si cae, cae todo</td><td>Escala sola</td></tr>
+      <tr><td>Encaje con el plan de IT</td><td>Distinto del resto</td><td>El mismo patrón que la web de SEA</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">SQS sobra para ~100 personas: no hay trabajo en cola. SES sí entra, porque Cognito lo usa para mandar los códigos de acceso y nos sirve para avisos. EC2 tiene sentido como contenido de un taller, no como hosting.</p>
+
+  <h2>Lo que ya está montado</h2>
+  <p>Está en <code>hackathon/plataforma/</code>, y la API se ha probado en local con todas las rutas.</p>
+  <div class="cols">
+    <div class="panel"><h3>Participante</h3><p>Registro con consentimiento RGPD y entrada con un código al email, sin contraseña. Ve la cuenta atrás, la agenda, los enlaces y su checklist. Crea un equipo o se une con un código (máximo 2 personas). Entrega repo, demo, vídeo, módulo y servicios usados, y puede actualizarla hasta el cierre.</p></div>
+    <div class="panel"><h3>Organización</h3><p>Tabla de participantes con el estado de Meetup, Builder Center, AWS e IA, y descarga en CSV. Equipos con sus entregas. Importación del export de Meetup. Agenda, enlaces, hora de cierre y avisos se editan sin redesplegar.</p></div>
+    <div class="panel"><h3>Infraestructura</h3><p>Una plantilla SAM y <code>deploy.sh</code>. Sube también tu landing a la raíz, así que web e inscripción quedan en una sola URL. El dominio es opcional: sin él usamos la URL de CloudFront.</p></div>
+  </div>
+
+  <h2>Los tres puntos delicados</h2>
+  <div class="cols">
+    <div class="panel">
+      <h3>Alta automática desde Meetup <span class="tag warn">a medias</span></h3>
+      <p>La API de Meetup pide Meetup Pro, y Meetup no da los emails de los asistentes.</p>
+      <p>Mi propuesta es poner en el RSVP de Meetup la pregunta “email para la plataforma”. Después, en el panel, pegas el CSV de asistentes y se marcan solos. Cada persona se registra con el enlace que ponemos en el evento.</p>
+      <p>Si el SBG cuelga de la red Pro de AWS y nos dan clave de API, añado una importación automática cada hora.</p>
+    </div>
+    <div class="panel">
+      <h3>Comprobar los pasos de consola <span class="tag ok">resuelto</span></h3>
+      <p>El botón “Comprobar mi cuenta” abre CloudFormation en la cuenta del participante con su token ya puesto. Una Lambda de solo lectura mira si hay MFA en root y si hay un presupuesto, y solo nos manda esos datos y el ID de cuenta.</p>
+      <p>No pedimos acceso a su cuenta. De paso, ya llegan sabiendo desplegar un stack. Si quieres comprobar más pasos, dime cuáles y los añado.</p>
+    </div>
+    <div class="panel">
+      <h3>IA para montar la web <span class="tag warn">por decidir</span></h3>
+      <p>Lo más barato y sencillo: que lleguen con Kiro o Amazon Q Developer en su plan gratuito, con el mismo AWS Builder ID que usan en Builder Center. Hay que confirmar los límites actuales.</p>
+      <p>Plan B: Claude en Amazon Bedrock desde su propia cuenta. No recomiendo un proxy con nuestros créditos sin límite por equipo, porque se nos puede ir el presupuesto en una tarde.</p>
+    </div>
+  </div>
+
+  <h2>Lo que necesito de ti</h2>
+  <ol class="steps">
+    <li><strong>SES hoy.</strong> Hay que verificar un dominio o un email y pedir la salida del sandbox. Tarda unas 24 h, y sin eso los códigos de acceso solo llegan a direcciones verificadas.</li>
+    <li><strong>Dominio, si quieres.</strong> Un subdominio de un dominio que ya tenga SEA basta. Si hay que comprarlo, lo compras tú y yo no compro nada.</li>
+    <li><strong>Enlaces:</strong> el de Meetup, el de Builder Center y el de registro en AWS. También necesito la pregunta del RSVP añadida en Meetup.</li>
+    <li><strong>Qué pasos de consola son obligatorios.</strong> Ahora mismo son MFA en root y el presupuesto.</li>
+    <li><strong>Un repo de SEA en GitHub</strong> para subir el código y que Marco lo revise.</li>
+  </ol>
+  <p class="note">Sin confirmar y vacío a propósito: la agenda por horas y la hora de cierre de entregas. Se rellenan desde el panel en cuanto estén cerradas.</p>
+</div>

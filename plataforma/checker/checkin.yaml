@@ -1,0 +1,97 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Comprobacion previa del Hackathon AWS Student Builder Group at UC3M x SEA.
+  Crea una Lambda de un solo uso que mira si tu cuenta tiene MFA en el usuario root y
+  algun presupuesto (AWS Budgets) creado, y envia SOLO esos resultados y el ID de cuenta
+  a la plataforma. No da acceso a tu cuenta a nadie. Puedes borrar el stack despues.
+
+Parameters:
+  Token:
+    Type: String
+    AllowedPattern: '[A-Za-z0-9_-]{20,64}'
+    Description: Tu token personal (viene ya relleno desde la plataforma).
+  ApiUrl:
+    Type: String
+    AllowedPattern: 'https://.+'
+    Description: URL de la plataforma (viene ya rellena).
+
+Resources:
+  CheckRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: {Service: lambda.amazonaws.com}
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: read-only-checks
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [iam:GetAccountSummary, budgets:ViewBudget]
+                Resource: '*'
+
+  CheckFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Runtime: python3.12
+      Handler: index.handler
+      Timeout: 30
+      Role: !GetAtt CheckRole.Arn
+      Code:
+        ZipFile: |
+          import json, urllib.request, boto3, cfnresponse
+
+          def run_checks(account):
+              r = {}
+              try:
+                  s = boto3.client('iam').get_account_summary()['SummaryMap']
+                  r['mfaRoot'] = s.get('AccountMFAEnabled', 0) == 1
+              except Exception as e:
+                  print('mfaRoot', e); r['mfaRoot'] = None
+              try:
+                  b = boto3.client('budgets', region_name='us-east-1').describe_budgets(AccountId=account, MaxResults=10)
+                  r['budget'] = len(b.get('Budgets', [])) > 0
+              except Exception as e:
+                  r['budget'] = False if 'NotFound' in type(e).__name__ or 'NotFound' in str(e) else None
+                  print('budget', e)
+              return r
+
+          def handler(event, context):
+              if event['RequestType'] == 'Delete':
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {}); return
+              props = event['ResourceProperties']
+              account = context.invoked_function_arn.split(':')[4]
+              results = run_checks(account)
+              reported = 'ok'
+              try:
+                  payload = {'token': props['Token'], 'accountId': account,
+                             'region': context.invoked_function_arn.split(':')[3], 'results': results}
+                  req = urllib.request.Request(props['ApiUrl'].rstrip('/') + '/api/checkin',
+                        data=json.dumps(payload).encode(), headers={'Content-Type': 'application/json'}, method='POST')
+                  urllib.request.urlopen(req, timeout=10).read()
+              except Exception as e:
+                  reported = 'error: ' + str(e)[:200]
+              # Nunca fallamos el stack: el resultado se ve en la plataforma y en Outputs.
+              cfnresponse.send(event, context, cfnresponse.SUCCESS,
+                               {'Results': json.dumps(results), 'Reported': reported})
+
+  CheckRun:
+    Type: Custom::HackathonCheck
+    Properties:
+      ServiceToken: !GetAtt CheckFunction.Arn
+      Token: !Ref Token
+      ApiUrl: !Ref ApiUrl
+
+Outputs:
+  Results:
+    Description: Resultado de las comprobaciones
+    Value: !GetAtt CheckRun.Results
+  Reported:
+    Description: Si se pudo enviar a la plataforma
+    Value: !GetAtt CheckRun.Reported

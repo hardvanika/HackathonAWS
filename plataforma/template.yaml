@@ -1,0 +1,325 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Plataforma de participantes del Hackathon AWS Student Builder Group at UC3M x SEA.
+  S3 + CloudFront (web), Cognito (login por codigo al email), API Gateway HTTP + Lambda + DynamoDB.
+
+Parameters:
+  Stage:
+    Type: String
+    Default: prod
+  SesIdentityArn:
+    Type: String
+    Default: ''
+    Description: ARN de la identidad verificada en SES (dominio o email) con la que Cognito manda los codigos de acceso.
+  SesFromEmail:
+    Type: String
+    Default: ''
+    Description: Direccion remitente, dentro de esa identidad (p.ej. hackathon@dominio.es).
+  DomainName:
+    Type: String
+    Default: ''
+    Description: Opcional. Dominio propio (p.ej. hackathon.dominio.es). Vacio = se usa la URL de CloudFront.
+  CertificateArn:
+    Type: String
+    Default: ''
+    Description: Opcional. Certificado ACM en us-east-1 para DomainName.
+  HostedZoneId:
+    Type: String
+    Default: ''
+    Description: Opcional. Zona de Route 53 donde crear el alias de DomainName.
+  EnableChecker:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: Crea el bucket publico con la plantilla de comprobacion de cuentas AWS.
+  AdminEmails:
+    Type: String
+    Default: ''
+    Description: Emails de los admins fijos, separados por comas. El resto se dan desde el panel.
+
+Conditions:
+  HasSes: !Not [!Equals [!Ref SesIdentityArn, '']]
+  HasChecker: !Equals [!Ref EnableChecker, 'true']
+  HasDomain: !Not [!Equals [!Ref DomainName, '']]
+  HasZone: !And [!Condition HasDomain, !Not [!Equals [!Ref HostedZoneId, '']]]
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [arm64]
+    MemorySize: 256
+    Timeout: 15
+
+Resources:
+  # ---------- Datos ----------
+  Table:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - {AttributeName: PK, AttributeType: S}
+        - {AttributeName: SK, AttributeType: S}
+        - {AttributeName: GSI1PK, AttributeType: S}
+        - {AttributeName: GSI1SK, AttributeType: S}
+      KeySchema:
+        - {AttributeName: PK, KeyType: HASH}
+        - {AttributeName: SK, KeyType: RANGE}
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - {AttributeName: GSI1PK, KeyType: HASH}
+            - {AttributeName: GSI1SK, KeyType: RANGE}
+          Projection: {ProjectionType: ALL}
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+
+  # ---------- Login ----------
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub hackathon-${Stage}
+      UserPoolTier: ESSENTIALS
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true   # el alta pasa por /api/register
+      Policies:
+        SignInPolicy:
+          AllowedFirstAuthFactors: !If [HasSes, [PASSWORD, EMAIL_OTP], [PASSWORD]]
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: false
+          RequireUppercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          TemporaryPasswordValidityDays: 7
+      EmailConfiguration: !If
+        - HasSes
+        - EmailSendingAccount: DEVELOPER
+          SourceArn: !Ref SesIdentityArn
+          From: !Sub 'Hackathon SBG UC3M x SEA <${SesFromEmail}>'
+        - EmailSendingAccount: COGNITO_DEFAULT
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - {Name: verified_email, Priority: 1}
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: web
+      GenerateSecret: false
+      ExplicitAuthFlows: [ALLOW_USER_AUTH, ALLOW_USER_PASSWORD_AUTH, ALLOW_REFRESH_TOKEN_AUTH]
+      PreventUserExistenceErrors: ENABLED
+      IdTokenValidity: 12
+      AccessTokenValidity: 12
+      RefreshTokenValidity: 30
+      TokenValidityUnits: {IdToken: hours, AccessToken: hours, RefreshToken: days}
+
+  AdminsGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref UserPool
+      GroupName: admins
+      Description: Organizacion (Ivan, Marco...)
+
+  # ---------- API ----------
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 50
+        ThrottlingRateLimit: 20
+      Auth:
+        DefaultAuthorizer: Cognito
+        Authorizers:
+          Cognito:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+              audience: [!Ref UserPoolClient]
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: app.handler
+      Environment:
+        Variables:
+          TABLE: !Ref Table
+          USER_POOL_ID: !Ref UserPool
+          USER_POOL_CLIENT_ID: !Ref UserPoolClient
+          AUTH_MODE: !If [HasSes, otp, password]
+          ADMIN_EMAILS: !Ref AdminEmails
+          CHECKER_TEMPLATE_URL: !If [HasChecker, !Sub 'https://${CheckerBucket.RegionalDomainName}/checker/checkin.yaml', '']
+      Policies:
+        - DynamoDBCrudPolicy: {TableName: !Ref Table}
+        - Statement:
+            - Effect: Allow
+              Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminSetUserPassword, cognito-idp:AdminDeleteUser]
+              Resource: !GetAtt UserPool.Arn
+      Events:
+        PublicConfig: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/public/config, Auth: {Authorizer: NONE}}}
+        PublicStats: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/public/stats, Auth: {Authorizer: NONE}}}
+        Register: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/register, Auth: {Authorizer: NONE}}}
+        Checkin: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/checkin, Auth: {Authorizer: NONE}}}
+        GetMe: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/me}}
+        PutMe: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: PUT, Path: /api/me}}
+        CreateTeam: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/teams}}
+        JoinTeam: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/teams/join}}
+        LeaveTeam: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/teams/leave}}
+        Submit: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: PUT, Path: /api/teams/submission}}
+        AdminParticipants: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/admin/participants}}
+        AdminTeams: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/admin/teams}}
+        AdminListAdmins: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/admin/admins}}
+        AdminSetAdmin: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/admin/admins}}
+        AdminAllowlist: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: POST, Path: /api/admin/allowlist}}
+        AdminConfig: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: PUT, Path: /api/admin/config}}
+
+  # ---------- Web ----------
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+
+  SiteOAC:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub hackathon-${Stage}-oac
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: {Service: cloudfront.amazonaws.com}
+            Action: s3:GetObject
+            Resource: !Sub ${SiteBucket.Arn}/*
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub arn:aws:cloudfront::${AWS::AccountId}:distribution/${Distribution}
+
+  # /app/ -> /app/index.html
+  IndexRewrite:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub hackathon-${Stage}-index
+      AutoPublish: true
+      FunctionConfig: {Comment: subdir index, Runtime: cloudfront-js-2.0}
+      FunctionCode: |
+        function handler(event) {
+          var r = event.request;
+          if (r.uri.endsWith('/')) r.uri += 'index.html';
+          else if (!r.uri.includes('.')) r.uri += '/index.html';
+          return r;
+        }
+
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: Hackathon AWS SBG UC3M x SEA
+        PriceClass: PriceClass_100
+        HttpVersion: http2and3
+        DefaultRootObject: index.html
+        Aliases: !If [HasDomain, [!Ref DomainName], !Ref AWS::NoValue]
+        ViewerCertificate: !If
+          - HasDomain
+          - {AcmCertificateArn: !Ref CertificateArn, SslSupportMethod: sni-only, MinimumProtocolVersion: TLSv1.2_2021}
+          - {CloudFrontDefaultCertificate: true}
+        Origins:
+          - Id: site
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt SiteOAC.Id
+            S3OriginConfig: {OriginAccessIdentity: ''}
+          - Id: api
+            DomainName: !Sub ${Api}.execute-api.${AWS::Region}.amazonaws.com
+            CustomOriginConfig: {OriginProtocolPolicy: https-only, OriginSSLProtocols: [TLSv1.2]}
+        DefaultCacheBehavior:
+          TargetOriginId: site
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6          # Managed-CachingOptimized
+          ResponseHeadersPolicyId: 67f7725c-6f97-4210-82d7-5512b31e9d03 # Managed-SecurityHeadersPolicy
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt IndexRewrite.FunctionMetadata.FunctionARN
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: api
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad          # Managed-CachingDisabled
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac  # Managed-AllViewerExceptHostHeader
+
+  DnsRecord:
+    Type: AWS::Route53::RecordSet
+    Condition: HasZone
+    Properties:
+      HostedZoneId: !Ref HostedZoneId
+      Name: !Ref DomainName
+      Type: A
+      AliasTarget:
+        DNSName: !GetAtt Distribution.DomainName
+        HostedZoneId: Z2FDTNDATAQYW2   # zona fija de CloudFront
+
+  # Plantilla que los participantes lanzan en SU cuenta (CloudFormation exige una URL de S3)
+  CheckerBucket:
+    Type: AWS::S3::Bucket
+    Condition: HasChecker
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: false
+        RestrictPublicBuckets: false
+
+  CheckerBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: HasChecker
+    Properties:
+      Bucket: !Ref CheckerBucket
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: '*'
+            Action: s3:GetObject
+            Resource: !Sub ${CheckerBucket.Arn}/checker/*
+
+Outputs:
+  SiteUrl:
+    Value: !If [HasDomain, !Sub 'https://${DomainName}', !Sub 'https://${Distribution.DomainName}']
+  DistributionId:
+    Value: !Ref Distribution
+  SiteBucket:
+    Value: !Ref SiteBucket
+  CheckerBucket:
+    Condition: HasChecker
+    Value: !Ref CheckerBucket
+  UserPoolId:
+    Value: !Ref UserPool
+  UserPoolClientId:
+    Value: !Ref UserPoolClient
+  ApiUrl:
+    Value: !Sub https://${Api}.execute-api.${AWS::Region}.amazonaws.com
+  TableName:
+    Value: !Ref Table

@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plataforma · Hackathon como SEA</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: copia de la web del SBG UC3M. Retícula de celdas --u (80 px escritorio, 64 tablet, 48 móvil); columna de 16/12/N celdas;
+     todos los bloques miden celdas enteras (el script redondea alturas y alinea la retícula con la columna). Un solo look claro. */
+  :root {
+    --ink: #161D26; --paper: #FFFFFF; --grid: #DEDEE3; --orange: #FF9900; --blue: #42B4FF; --line: rgba(22,29,38,.35); --muted: #374151; --muted-dk: #C4CAD4;
+    --mono: "Noto Sans Mono", ui-monospace, Menlo, monospace; --sans: "Noto Sans", system-ui, -apple-system, sans-serif;
+    --u: 80px; --pad: 56px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: calc(var(--u) + env(safe-area-inset-top, 0px)); }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+  a { color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  p { margin: 0; }
+  h1, h2, h3 { font-family: var(--mono); font-weight: 400; margin: 0; text-wrap: balance; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--paper); }
+
+  .page {
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: var(--u) var(--u); background-position: var(--gx, 0px) 0;
+    overflow-x: clip; padding-top: var(--u); padding-bottom: calc(2 * var(--u));
+  }
+  .col { position: relative; width: calc(16 * var(--u)); max-width: calc(100% - 32px); margin-left: var(--cx, auto); margin-right: auto; }
+  .blk { outline: 1px solid var(--line); outline-offset: -1px; background: var(--paper); }
+  .dark { background: var(--ink); color: var(--paper); outline-color: var(--ink); }
+  .o-bg { background: var(--orange); }
+  .in { padding: 32px var(--pad); display: flex; flex-direction: column; justify-content: center; gap: 12px; min-width: 0; }
+  .stack { display: flex; flex-direction: column; }
+  .stack > :last-child { flex: 1 1 auto; }
+  .g { display: grid; }
+  .deco { position: absolute; pointer-events: none; }
+  .measuring .snap { align-self: flex-start !important; flex: none !important; }
+
+  .eyebrow { font-family: var(--mono); font-size: 14px; }
+  .eyebrow.o { color: var(--orange); }
+  h1 { font-size: clamp(34px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.01em; }
+  h2 { font-size: clamp(24px, 2.4vw, 34px); line-height: 1.15; }
+  h3 { font-size: 22px; line-height: 1.2; }
+  .lead { font-size: 18px; max-width: 34em; }
+  .small { font-size: 15px; line-height: 1.45; }
+  .big { font-family: var(--mono); font-size: 56px; line-height: 1; white-space: nowrap; }
+  .num { font-family: var(--mono); font-size: 40px; line-height: 1; color: var(--orange); flex: 0 0 auto; }
+  .row { flex-direction: row; align-items: center; justify-content: flex-start; gap: 24px; }
+  .row > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .dark .muted { color: var(--muted-dk); }
+
+  .btn { display: inline-block; align-self: flex-start; text-decoration: none; padding: 16px 28px; font-family: var(--mono); font-size: 16px; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn.sm { padding: 12px 20px; font-size: 15px; }
+  .btn.o { background: var(--orange); color: var(--ink); font-weight: 600; }
+  .btn.d { background: var(--ink); color: var(--paper); }
+  .btn.o:hover, .btn.o:focus-visible { transform: translate(-5px,-5px); box-shadow: 5px 5px 0 var(--paper), 5px 5px 0 1px var(--ink); }
+  .btn.d:hover, .btn.d:focus-visible { transform: translate(-5px,-5px); box-shadow: 5px 5px 0 var(--blue); }
+  .btn:active { transform: none; box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+  .ctas { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+  .tbc { display: inline-block; align-self: flex-start; font-family: var(--mono); font-size: 13px; border: 1px dashed currentColor; padding: 6px 12px; }
+
+  /* barra superior, sin logos */
+  .nav { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); z-index: 50; background: var(--paper); box-shadow: inset 0 -1px 0 var(--line); }
+  .nav .col { display: flex; align-items: center; justify-content: space-between; height: var(--u); gap: 16px; }
+  .nav .brand { font-family: var(--mono); font-size: 14px; line-height: 1.35; text-decoration: none; }
+  .nav .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 15px; }
+  .nav .links a:not(.btn) { text-decoration: none; }
+  .nav .links a[aria-current] { text-decoration: underline; text-underline-offset: 6px; }
+
+  section, header { position: relative; padding-top: calc(2 * var(--u)); }
+  header { padding-top: var(--u); }
+  .page.fit { padding-bottom: 0; }
+  .page.fit > footer { display: none; }
+  .card { min-height: calc(4 * var(--u)); }
+  .card { justify-content: flex-start !important; }
+  .card p:not(.eyebrow) { flex-grow: 1; }
+  .card svg { width: 32px; height: 32px; flex: 0 0 auto; }
+  .card .btn { margin-top: 24px; }
+
+  /* 16 celdas (escritorio) */
+  .c16 .hq { grid-template-columns: repeat(2, calc(8 * var(--u))); }
+  .c16 .stats { grid-template-columns: repeat(2, calc(4 * var(--u))); }
+  .c16 .three { grid-template-columns: calc(5 * var(--u)) calc(6 * var(--u)) calc(5 * var(--u)); }
+  .c16 .two { grid-template-columns: repeat(2, calc(8 * var(--u))); }
+  .deco.uni { display: grid; place-items: center; color: var(--ink); font-family: var(--mono); font-weight: 600; font-size: clamp(14px, 1.3vw, 20px); letter-spacing: .04em; }
+  ol.tl { list-style: none; margin: 0; padding: 0; }
+  .tl .t { font-family: var(--mono); font-size: 28px; line-height: 1; flex: 0 0 120px; }
+  .tl .t.tbd { font-size: 13px; line-height: 1.3; align-self: center; }
+  .cs .tl .t { flex-basis: 84px; font-size: 22px; }
+  .cs .tl .t.tbd { font-size: 12px; }
+  .sp-empty { grid-column: 1 / -1; }
+  .sp a { align-self: flex-start; }
+  /* 12 celdas (tablet) */
+  .c12 { --pad: 40px; }
+  .c12 .hq, .c12 .two { grid-template-columns: calc(12 * var(--u)); }
+  .c12 .stats { grid-template-columns: repeat(2, calc(6 * var(--u))); }
+  .c12 .three { grid-template-columns: repeat(3, calc(4 * var(--u))); }
+  /* móvil */
+  .cs { --pad: 20px; }
+  .cs .hq, .cs .stats, .cs .three, .cs .two { grid-template-columns: 1fr; }
+  .cs .nav .links a:not(.btn) { display: none; }
+  .cs .nav .brand { font-size: 11px; }
+  .cs .card { min-height: 0; }
+  .cs .lead { font-size: 16px; }
+  .cs .big { font-size: 40px; }
+  .cs .num { font-size: 30px; }
+  .cs .row { gap: 16px; }
+  .cs .btn { padding: 12px 18px; font-size: 15px; }
+  .page:not(.wide) .deco { display: none; }
+  .mono { font-family: var(--mono); }
+  .c16 .foot { grid-template-columns: calc(7 * var(--u)) calc(9 * var(--u)); }
+  .c12 .foot { grid-template-columns: calc(12 * var(--u)); }
+  .cs .foot { grid-template-columns: 1fr; }
+  .foot > .blk { min-height: calc(2 * var(--u)); }
+  .cs .ev .quote { --pad: 20px; }
+
+  /* bloque "evento" (como el de la web del SBG) */
+  .ev { display: grid; }
+  .ev .title { text-align: center; align-items: center; }
+  .ev .title h2 { font-size: clamp(30px, 3.6vw, 56px); }
+  .ev .quote { align-self: start; }
+  .ev .quote { --pad: 40px; }
+  .ev .quote h3 { font-size: clamp(22px, 2vw, 28px); line-height: 1.15; overflow-wrap: anywhere; }
+  .ev .quote p { font-size: 20px; line-height: 1.5; }
+  .tag { align-self: flex-start; background: var(--orange); font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .06em; padding: 6px 12px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 16px; }
+  .meta span { display: inline-flex; align-items: center; gap: 8px; }
+  .meta svg { width: 18px; height: 18px; flex: 0 0 auto; }
+  .c16 .ev { grid-template-columns: repeat(16, var(--u)); }
+  .c16 .ev .title { grid-column: 5 / 13; grid-row: 1; }
+  .c16 .ev .quote { grid-column: 2 / 6; grid-row: 2; }
+  .c16 .ev .main { grid-column: 6 / 16; grid-row: 2; }
+  .c12 .ev { grid-template-columns: repeat(12, var(--u)); }
+  .c12 .ev .title { grid-column: 3 / 11; grid-row: 1; }
+  .c12 .ev .quote { grid-column: 1 / 5; grid-row: 2; }
+  .c12 .ev .main { grid-column: 5 / 13; grid-row: 2; }
+  .cs .ev { grid-template-columns: 1fr; }
+
+  /* ---- plataforma ---- */
+  .muted { color: var(--muted); }
+  .hidden { display: none !important; }
+  button { font: inherit; }
+  .btn { border: 0; cursor: pointer; text-align: center; }
+  .btn:not(.d):not(.ghost) { background: var(--orange); color: var(--ink); font-weight: 600; }
+  .btn:not(.d):not(.ghost):hover, .btn:not(.d):not(.ghost):focus-visible { transform: translate(-5px,-5px); box-shadow: 5px 5px 0 var(--paper), 5px 5px 0 1px var(--ink); }
+  .btn.ghost { background: var(--paper); color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .btn.ghost:hover, .btn.ghost:focus-visible { transform: translate(-5px,-5px); box-shadow: inset 0 0 0 1px var(--ink), 5px 5px 0 var(--blue); }
+  .btn[disabled] { opacity: .5; cursor: wait; transform: none !important; box-shadow: none !important; }
+  .nav .links button.btn { align-self: center; }
+  label { display: block; font-family: var(--mono); font-size: 14px; margin: 16px 0 6px; }
+  label.inline { display: flex; gap: 10px; align-items: center; margin: 0; font-family: var(--sans); font-size: 15px; }
+  input, select, textarea { width: 100%; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); border-radius: 0; padding: 12px 14px; font: inherit; }
+  input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--ink); flex: 0 0 auto; }
+  textarea { min-height: 120px; resize: vertical; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--blue); outline-offset: 0; }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-family: var(--sans); font-size: 14px; line-height: 1.45; color: var(--muted); margin-top: 20px; }
+  .consent input { margin-top: 2px; }
+  .tabs { display: flex; }
+  .tabs button { flex: 1 1 0; font-family: var(--mono); font-size: 15px; padding: 14px 12px; background: var(--paper); color: var(--ink); border: 0; box-shadow: inset 0 0 0 1px var(--ink); cursor: pointer; }
+  .tabs button + button { margin-left: -1px; }
+  .tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); }
+  .forms { display: flex; flex-direction: column; }
+  .forms > form { flex: 1 1 auto; }
+  .acts { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; margin-top: 16px; }
+  .acts input:not([type=checkbox]) { flex: 1 1 200px; width: auto; }
+  .acts .btn { align-self: center; }
+  .msg { font-size: 14px; min-height: 1.2em; margin-top: 4px; }
+  .msg:empty { display: none; }
+  .msg.err { color: #B42318; } .msg.okm { color: #067647; }
+  .dark .msg.err { color: #FDA29B; } .dark .msg.okm { color: #75E0A7; }
+  .check { flex-direction: row !important; align-items: flex-start; justify-content: flex-start !important; gap: 16px !important; }
+  .check > div:last-child { display: flex; flex-direction: column; gap: 8px; min-width: 0; flex: 1 1 auto; }
+  .check h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .check p { font-size: 15px; line-height: 1.45; color: var(--muted); }
+  .dot { flex: 0 0 32px; height: 32px; display: grid; place-items: center; font-family: var(--mono); font-size: 16px; box-shadow: inset 0 0 0 1px var(--ink); }
+  .dot.ok { background: var(--ink); color: var(--paper); }
+  .dot.warn { background: var(--orange); box-shadow: none; }
+  .pill { display: inline-block; font-family: var(--mono); font-size: 12px; font-weight: 500; padding: 3px 8px; box-shadow: inset 0 0 0 1px currentColor; }
+  .pill.ok { background: var(--orange); color: var(--ink); box-shadow: none; }
+  .pill.bad { color: #B42318; }
+  .code { font-family: var(--mono); font-size: 20px; letter-spacing: 3px; background: var(--orange); padding: 2px 10px; }
+  ul.plain, .agenda, #links { list-style: none; padding: 0; margin: 0; }
+  .agenda li, #links li { display: flex; gap: 16px; padding: 10px 0; box-shadow: inset 0 -1px 0 var(--line); }
+  .agenda li:last-child, #links li:last-child { box-shadow: none; }
+  .agenda b { font-family: var(--mono); font-weight: 500; min-width: 56px; }
+  /* móvil (Ivan 26 nov) */
+  .cs #dash header .dark .eyebrow, .cs #eventLine { display: none; }
+  .cs #dash header .dark { min-height: 0 !important; padding-top: 24px; padding-bottom: 24px; }
+  .cs .nav .brand { font-size: 13px; white-space: nowrap; overflow: visible; flex: 0 0 auto; }
+  .cs .nav .brand .mtitle { font-size: 13px; }
+  .cs .nav .col { gap: 8px; }
+  .cs .nav .links { gap: 6px; flex: 0 1 auto; }
+  .cs .nav .links .btn { padding: 8px 10px; font-size: 12px; }
+  @media (hover: none) { .btn:hover, .btn:focus, .btn:active { transform: none !important; box-shadow: none !important; } }
+  .cs .nav .brand .mtitle, .cs .nav .brand > .mtitle { font-size: 12px !important; }
+  .cs .tabs { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cs .tabs button { margin: 0 !important; font-size: 11px; padding: 12px 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: inset 0 0 0 .5px var(--ink); }
+  .cs .adm-title { min-height: 0 !important; padding-top: 24px !important; padding-bottom: 24px !important; }
+  .cs .adm-title h1 { font-size: 26px; }
+  .cs .st-wrap .st-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs .adm-panel { padding-left: 16px !important; padding-right: 16px !important; }
+  /* cuenta atrás como la de la portada (Ivan 26 nov) */
+  .cd-box { background: var(--white); }
+  .cd-box .count { font-weight: 700; font-size: clamp(40px, 4.4vw, 68px); line-height: 1; letter-spacing: -.02em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cd-box .count small { font-size: .5em; font-weight: 500; margin: 0 .25em 0 .05em; }
+  .cs .cd-box .count { font-size: 40px; }
+  #agenda li { font-size: 16px; line-height: 1.5; padding: 8px 0; } /* misma letra que Tu equipo (Ivan 26 nov) */
+  #agenda b { font-size: 15px; }
+  #links a { color: var(--paper); font-family: var(--mono); font-size: 15px; }
+  #links li { box-shadow: inset 0 -1px 0 rgba(255,255,255,.2); }
+  .banner { align-self: flex-start; background: var(--orange); color: var(--ink); font-size: 15px; padding: 10px 14px; }
+  .fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+  .cs .fields { grid-template-columns: 1fr; }
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 8px; box-shadow: inset 0 -1px 0 var(--line); white-space: nowrap; }
+  th { font-family: var(--mono); font-weight: 500; }
+  .count { font-family: var(--mono); font-size: clamp(32px, 3vw, 44px); line-height: 1.1; }
+  .c16 .two { grid-template-columns: repeat(2, calc(8 * var(--u))); }
+  .c16 .side { grid-template-columns: calc(6 * var(--u)) calc(10 * var(--u)); }
+  .c12 .side { grid-template-columns: calc(12 * var(--u)); }
+  .cs .side { grid-template-columns: 1fr; }
+  .cs .tabs button { font-size: 14px; padding: 12px 8px; }
+  .g.checks { align-items: stretch; }
+
+  /* ===== Tema póster (24 nov): fondo blanco, detalles en rojo SEA, bloques blancos y negros, tipografía AWS (Noto Sans / Noto Sans Mono) ===== */
+  :root {
+    --red: #FF462E; --ink: #141414; --navy: #0B1430; --white: #FFFFFF;
+    --paper: var(--white); --grid: #E4E4E7; --orange: var(--red); --blue: var(--navy);
+    --line: rgba(20,20,20,.35); --muted: #3A3A3F; --muted-dk: rgba(255,255,255,.78);
+    --mono: "Noto Sans Mono", ui-monospace, Menlo, monospace; --sans: "Noto Sans", system-ui, -apple-system, sans-serif; --display: "Noto Sans Mono", ui-monospace, Menlo, monospace;
+  }
+  body { font-weight: 400; }
+  ::selection { background: var(--red); color: var(--ink); }
+  :focus-visible { outline-color: var(--red); }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.01em; }
+  h1, h2 { color: var(--ink); }
+  .dark h1, .dark h2 { color: var(--white); }
+  h3 { font-weight: 500; }
+  .eyebrow { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+  .dark { background: var(--ink); color: var(--white); outline-color: var(--ink); }
+  .navy { background: var(--white); color: var(--ink); outline-color: var(--line); }
+  .o-bg { background: var(--red); color: var(--ink); outline-color: var(--ink); }
+  .o-bg h2 { color: var(--ink); }
+  .eyebrow.o { color: var(--red); }
+  .o-bg .eyebrow { color: var(--ink); }
+  .num { font-family: var(--display); font-weight: 700; color: var(--red); }
+  .dark .num, .navy .num { color: var(--red); }
+  .btn { font-weight: 700; }
+  .btn.o { background: var(--red); color: var(--ink); }
+  .btn.o:hover, .btn.o:focus-visible { box-shadow: 5px 5px 0 var(--ink); }
+  .btn.d { background: var(--ink); color: var(--white); }
+  .btn.d:hover, .btn.d:focus-visible { box-shadow: 5px 5px 0 var(--red); }
+  .dark .btn.o, .navy .btn.o { box-shadow: none; }
+  .dark .btn.o:hover, .navy .btn.o:hover, .dark .btn.o:focus-visible, .navy .btn.o:focus-visible { box-shadow: 5px 5px 0 var(--white); }
+  .o-bg .btn.o { background: var(--ink); color: var(--white); }
+  .pblk { background: var(--white); }
+  .pblk .q { color: var(--ink) !important; }
+  .pblk .eyebrow { color: var(--red); }
+  .mega .dot { color: var(--red); }
+  .uni .ven, .footL .ven { color: var(--ink); }
+  .uni .ven { color: var(--red); }
+  .tag { background: var(--ink); color: var(--red); }
+  .nav { background: var(--white); box-shadow: inset 0 -2px 0 var(--ink); }
+  .nav .btn.o { background: var(--red); }
+  .nav .brand { font-weight: 700; }
+  .nav .links { font-weight: 700; }
+
+  /* hero tipo póster */
+  .hero-g { display: grid; }
+  .c16 .hero-g { grid-template-columns: calc(11 * var(--u)) calc(5 * var(--u)); }
+  .c12 .hero-g { grid-template-columns: calc(7 * var(--u)) calc(5 * var(--u)); }
+  .cs .hero-g { grid-template-columns: 1fr; }
+  .hero-g .band, .hero-g .uni { grid-column: 1 / -1; }
+  .pblk { position: relative; gap: 20px !important; justify-content: flex-start !important; padding-top: 40px; padding-bottom: 40px; }
+  .pblk .q { font-family: var(--display); font-weight: 700; color: var(--white); font-size: clamp(22px, 2.4vw, 34px); line-height: 1.2; max-width: 15em; }
+  .mega { color: var(--ink) !important; font-weight: 600; font-size: clamp(64px, 11.2vw, 172px); line-height: .86; letter-spacing: -.02em; margin-top: 8px; }
+  .cs .mega { font-size: clamp(52px, 19vw, 104px); }
+  .c12 .mega { font-size: clamp(56px, 11vw, 100px); }
+  .seadef { font-family: var(--mono); font-weight: 700; font-size: 14px; }
+  .star { position: absolute; top: 28px; right: 28px; width: clamp(110px, 11vw, 160px); height: auto; transform: rotate(-6deg); transition: transform .3s ease; }
+  .star:hover { transform: rotate(10deg) scale(1.06); }
+  .cs .star { width: 92px; top: 16px; right: 12px; }
+  @media (prefers-reduced-motion: reduce) { .star { transition: none; } }
+  .when { font-family: var(--display); font-weight: 700; font-size: clamp(36px, 3.6vw, 52px); line-height: 1; color: var(--white); font-variant-numeric: oldstyle-nums; }
+  .where { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--red); }
+  .perks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .perks li { display: flex; gap: 10px; align-items: baseline; font-size: 16px; }
+  .perks li::before { content: ""; flex: 0 0 8px; height: 8px; background: var(--red); transform: translateY(-2px); }
+  .perks b { font-weight: 700; }
+  .band { display: flex; align-items: center; justify-content: center; text-align: center; padding: 22px 20px; }
+  .band p { font-family: var(--display); font-weight: 700; color: var(--red); font-size: clamp(22px, 3.8vw, 56px); line-height: 1; letter-spacing: -.01em; }
+  .uni { flex-direction: row !important; flex-wrap: wrap; align-items: center !important; justify-content: space-between !important; gap: 16px 32px !important; }
+  .ven { font-family: var(--display); font-weight: 700; color: var(--white); font-size: clamp(24px, 2.6vw, 38px); line-height: 1.1; }
+  .unis { font-family: var(--mono); font-weight: 700; font-size: clamp(16px, 1.5vw, 20px); letter-spacing: .02em; }
+  .uni .ctas { margin-top: 0; }
+  .arrow { width: clamp(56px, 6vw, 88px); height: auto; flex: 0 0 auto; }
+  .cs .pblk { padding-top: 116px; }
+  .cs .star { top: 14px; right: 14px; }
+  .cs .band p { font-size: clamp(18px, 5.6vw, 26px); white-space: nowrap; }
+  .cs .uni .ven, .cs .footL .ven { font-size: clamp(18px, 5.4vw, 24px); }
+  .cs .nav .btn { white-space: nowrap; }
+  .deco.uni { color: var(--white); font-weight: 700; }
+  .deco.uni[aria-label=UC3M], .deco.uni[aria-label=UCJC] { color: var(--ink); }
+  .tl .t { font-weight: 700; }
+  .footL { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 24px !important; }
+  /* portal sobre el tema póster (blanco con detalles en rojo) */
+  .btn:not(.d):not(.ghost) { background: var(--red); color: var(--ink); }
+  .btn:not(.d):not(.ghost):hover, .btn:not(.d):not(.ghost):focus-visible { box-shadow: 5px 5px 0 var(--ink); }
+  .dark .btn:not(.d):not(.ghost):hover { box-shadow: 5px 5px 0 var(--white); }
+  .btn.ghost:hover, .btn.ghost:focus-visible { box-shadow: inset 0 0 0 1px var(--ink), 5px 5px 0 var(--red); }
+  input, select, textarea { background: var(--white); color: var(--ink); }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline-color: var(--red); }
+  .tabs button { font-weight: 700; }
+  .dot.warn, .pill.ok, .code, .banner { color: var(--ink); }
+  #links a { color: var(--white); }
+  /* panel de organización en móvil */
+  .cs .tabs { flex-wrap: wrap; }
+  .cs .tabs button { flex: 1 1 30%; margin-left: 0 !important; }
+  .cs .nav .links { gap: 8px; }
+  .cs .nav .links .btn { padding: 10px 12px; font-size: 13px; }
+  .cs .nav .brand { min-width: 0; overflow: hidden; }
+  /* estadísticas del panel */
+  .st-goal { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 24px; }
+  .st-hero { font-family: var(--mono); font-size: clamp(48px, 6vw, 80px); line-height: 1; font-weight: 600; color: var(--ink); }
+  .st-of { font-size: .45em; color: var(--muted); font-weight: 500; }
+  .st-bar { height: 14px; background: #EDEDF0; border-radius: 7px; overflow: hidden; margin: 8px 0 24px; }
+  .st-bar > span { display: block; height: 100%; width: 0; background: var(--red, #FF462E); border-radius: 7px; transition: width .6s ease; }
+  @media (prefers-reduced-motion: reduce) { .st-bar > span { transition: none; } }
+  .st-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0; margin-bottom: 24px; }
+  .st-kpi { padding: 16px 20px; box-shadow: inset 0 0 0 1px var(--line); display: flex; flex-direction: column; gap: 4px; }
+  .st-num { font-family: var(--mono); font-size: 32px; line-height: 1.1; font-weight: 600; }
+  .st-charts { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0; }
+  .cs .st-charts, .c12 .st-charts { grid-template-columns: 1fr; }
+  .st-card { margin: 0; padding: 20px; box-shadow: inset 0 0 0 1px var(--line); display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .st-card figcaption { display: flex; flex-direction: column; gap: 4px; }
+  .st-card h3 { font-size: 18px; }
+  .st-plot svg { display: block; overflow: visible; }
+  .st-grid { stroke: #E4E4E7; stroke-width: 1; }
+  .st-ax { font-family: var(--mono); font-size: 11px; fill: #6B6B73; }
+  .st-goalline { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 5 4; }
+  .st-goallbl { fill: var(--ink); font-weight: 600; }
+  .st-line { fill: none; stroke: var(--red, #FF462E); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .st-area { fill: var(--red, #FF462E); opacity: .08; }
+  .st-dot { fill: var(--red, #FF462E); stroke: #fff; stroke-width: 2; }
+  .st-cross { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; }
+  .st-barr { fill: var(--ink); }
+  .st-pie { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px; }
+  .st-donut { width: 180px; height: 180px; flex: 0 0 auto; }
+  .st-slice { stroke: #fff; stroke-width: 2; }
+  .st-slice:hover { opacity: .85; }
+  .st-donut-n { font-family: var(--mono); font-size: 34px; font-weight: 600; fill: var(--ink); }
+  .st-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; min-width: 140px; flex: 1 1 140px; }
+  .st-legend li { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+  .st-legend i { width: 12px; height: 12px; border-radius: 3px; flex: 0 0 auto; }
+  .st-legend b { margin-left: auto; font-family: var(--mono); font-weight: 500; font-size: 13px; color: var(--muted); }
+  .st-tip { position: fixed; z-index: 100; display: none; pointer-events: none; background: var(--ink); color: #fff; padding: 8px 12px; font-size: 13px; line-height: 1.4; display: none; flex-direction: column; box-shadow: 0 4px 16px rgba(0,0,0,.15); }
+  .st-tip b, .st-tip span { display: block; }
+  .st-tip-m { color: #C4C4CC; }
+  /* caja del temporizador en Estadísticas */
+  .st-timerbox { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; padding: 20px; margin-bottom: 24px; box-shadow: inset 0 0 0 1px var(--ink); }
+  .st-timerbox .msg { flex-basis: 100%; }
+  /* pantalla del temporizador (?timer), pensada para proyector */
+  body.tm-mode .page { display: none; }
+  .tm { position: fixed; inset: 0; background: #fff; color: var(--ink); display: grid; grid-template-rows: auto 1fr auto auto; gap: 3vh; padding: 4vh 5vw; font-family: var(--sans); overflow: auto;
+    background-image: linear-gradient(#EFEFF2 1px, transparent 1px), linear-gradient(90deg, #EFEFF2 1px, transparent 1px); background-size: 80px 80px; }
+  .tm-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--mono); font-size: clamp(14px, 1.4vw, 20px); font-weight: 600; }
+  .tm-mid { display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2vh; }
+  .tm-label { font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: clamp(14px, 1.4vw, 20px); font-weight: 600; }
+  .tm-clock { font-family: var(--mono); font-weight: 600; font-size: clamp(72px, 17vw, 260px); line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .tm-bar { width: min(1100px, 90%); height: 16px; background: #EDEDF0; border-radius: 8px; overflow: hidden; }
+  .tm-bar span { display: block; height: 100%; width: 0; background: var(--red, #FF462E); border-radius: 8px; transition: width 1s linear; }
+  .tm-last .tm-clock, .tm-done .tm-clock { color: var(--red, #FF462E); }
+  .tm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); background: #fff; box-shadow: inset 0 0 0 2px var(--ink); }
+  .tm-stat { padding: 2.4vh 24px; box-shadow: inset -1px 0 0 var(--line); }
+  .tm-n { font-family: var(--mono); font-weight: 600; font-size: clamp(32px, 4vw, 64px); line-height: 1.05; }
+  .tm-l { font-size: clamp(14px, 1.2vw, 18px); color: var(--muted); }
+  .tm-feed { background: #fff; padding: 16px 24px; box-shadow: inset 0 0 0 1px var(--line); }
+  .tm-feed ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 6px 32px; }
+  .tm-feed li { display: flex; gap: 12px; align-items: baseline; font-size: clamp(15px, 1.3vw, 20px); }
+  .tm-feed li span:not(.tm-t) { color: var(--muted); font-size: .85em; }
+  .tm-t { margin-left: auto; font-family: var(--mono); }
+  .tm-empty { color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { .tm-bar span { transition: none; } }
+
+  /* nada de rojo sobre negro (Ivan 24 nov) */
+  .dark .eyebrow, .dark .eyebrow.o, .dark .num, .navy.dark .num, .dark .where, .tag { color: var(--white); }
+  .hero-ev .tag { color: var(--ink); }
+
+  /* ver/ocultar contraseña */
+  .pw { position: relative; display: block; }
+  .pw input { padding-right: 52px; }
+  .pw .eye { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); box-shadow: none; }
+  .pw .eye:hover, .pw .eye:focus-visible { color: var(--red); transform: translateY(-50%); }
+  .pw .eye svg { width: 22px; height: 22px; }
+
+  .nav .brand { display: inline-flex; align-items: center; gap: 12px; }
+  .nav .bstar { width: 56px; height: 56px; flex: 0 0 auto; transform: rotate(-6deg); transition: transform .3s ease; }
+  .nav .brand:hover .bstar { transform: rotate(10deg) scale(1.06); }
+  .cs .nav .bstar { width: 44px; height: 44px; }
+  .cs .nav .brand > span { display: none; }
+  @media (prefers-reduced-motion: reduce) { .nav .bstar { transition: none; } }
+  /* botón copiar código de equipo */
+  #countdown { font-variant-numeric: tabular-nums; }
+  .codeRow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .copy { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 14px; font-weight: 700; background: var(--paper); color: var(--ink); border: 1px solid var(--ink); padding: 6px 12px; cursor: pointer; }
+  .copy:hover, .copy:focus-visible { background: var(--ink); color: var(--white, #fff); }
+  .copy svg { width: 16px; height: 16px; }
+
+  /* panel de organización en una sola pantalla */
+  header#admin { padding-top: var(--u); }
+  .adm-title { min-height: var(--u); padding-top: 0 !important; padding-bottom: 0 !important; }
+  .adm-title h1 { font-size: clamp(24px, 2.2vw, 32px); }
+  .adm-panel { overflow: auto; justify-content: flex-start !important; padding-top: 24px !important; padding-bottom: 24px !important; }
+  .adm-panel[data-ap=config] #cfgIn { flex: 1 1 auto; min-height: 160px !important; }
+  .adm-panel[data-ap=meetup] #csvIn { flex: 0 0 140px; min-height: 140px !important; }
+  .st-wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, .9fr); gap: 20px; align-items: start; }
+  .c12 .st-wrap, .cs .st-wrap { grid-template-columns: 1fr; }
+  .st-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .st-wrap .st-hero { font-size: clamp(44px, 4.4vw, 64px); }
+  .st-wrap .st-bar { margin: 4px 0 0; }
+  .st-wrap .st-timerbox { margin-bottom: 0; padding: 16px; }
+  .st-wrap .st-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 0; }
+  .st-wrap .st-kpi .small { font-size: 12px; line-height: 1.3; }
+  .st-wrap .st-kpi .eyebrow { font-size: 11px; }
+  .st-wrap .st-timerbox .btn { padding: 10px 16px; font-size: 14px; }
+  .st-wrap .st-goal .small { font-size: 14px; }
+  .st-wrap .st-kpi { padding: 10px 14px; }
+  .st-wrap .st-num { font-size: 24px; }
+  .st-wrap .st-card { padding: 14px 16px; gap: 8px; }
+  .st-wrap .st-card h3 { font-size: 17px; }
+  .st-wrap .st-donut { width: 150px; height: 150px; }
+
+  /* marca solo texto; pie fino */
+  .nav .brand > .mtitle, .cs .nav .brand > .mtitle { display: inline; font-size: 16px; white-space: nowrap; }
+  .foot > .blk { min-height: var(--u) !important; padding-top: 12px !important; padding-bottom: 12px !important; }
+</style>
+</head>
+<body>
+
+<div class="page c16">
+
+  <div class="nav">
+    <div class="col">
+      <a class="brand" href="../"><span class="mtitle">Hackathon AWS x SEA</span></a>
+      <nav class="links" aria-label="Principal">
+        <a href="../">Inicio</a>
+        <a href="../reto.html">El reto</a>
+        <a class="btn o sm" id="navJoin" href="#registro">Apúntate →</a>
+        <button class="btn ghost sm hidden" id="adminToggle" type="button">Organización</button>
+        <button class="btn d sm hidden" id="logout" type="button">Salir</button>
+      </nav>
+    </div>
+  </div>
+  <main>
+  <!-- ============ INICIAR SESIÓN / CREAR CUENTA ============ -->
+  <header id="auth" class="hidden">
+    <div class="col">
+      <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
+      <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
+      <div class="g side">
+        <div class="blk in dark snap">
+          <p class="eyebrow o">08 / Plataforma</p>
+          <h1>Tu cuenta del hackathon</h1>
+          <p class="lead muted">Crea tu cuenta con el mismo nombre completo que pusiste en Meetup. Aquí tendrás tu checklist, tu pareja y la entrega del proyecto.</p>
+          <p class="small muted" id="authHint">Entra con tu email.</p>
+        </div>
+        <div class="stack">
+          <div class="tabs snap" role="tablist" aria-label="Acceso">
+            <button role="tab" type="button" aria-selected="true" data-tab="login">Iniciar sesión</button>
+            <button role="tab" type="button" aria-selected="false" data-tab="signup">Crear cuenta</button>
+          </div>
+          <div class="forms">
+            <form id="loginForm" class="blk in snap" style="justify-content:flex-start">
+              <h2>Iniciar sesión</h2>
+              <div>
+                <label for="lEmail">Email</label>
+                <input id="lEmail" type="email" autocomplete="email" required>
+                <div id="pwBox" class="hidden">
+                  <label for="lPass">Contraseña</label>
+                  <input id="lPass" type="password" autocomplete="current-password">
+                </div>
+                <div id="otpBox" class="hidden">
+                  <label for="lCode">Código que te hemos enviado</label>
+                  <input id="lCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+                </div>
+              </div>
+              <div class="acts"><button class="btn" id="loginBtn">Entrar →</button></div>
+              <div class="msg" id="loginMsg" role="status"></div>
+            </form>
+            <form id="signupForm" class="blk in snap hidden" style="justify-content:flex-start">
+              <h2>Crear cuenta</h2>
+              <div>
+                <label for="sName">Nombre completo (el mismo que en Meetup)</label>
+                <input id="sName" autocomplete="name" required maxlength="80">
+                <label for="sEmail">Email</label>
+                <input id="sEmail" type="email" autocomplete="email" required>
+                <div id="sPwBox" class="hidden">
+                  <label for="sPass">Contraseña (mínimo 8 caracteres)</label>
+                  <input id="sPass" type="password" autocomplete="new-password" minlength="8" maxlength="128">
+                </div>
+                <label for="sUni">Universidad</label>
+                <select id="sUni"><option>UC3M</option><option>UPM</option><option>ICADE</option><option>UCJC</option><option value="UCM">UCM (Complutense)</option><option value="UEM">Universidad Europea</option><option>Otra</option></select>
+                <label class="consent"><input type="checkbox" id="sConsent" required>
+                  <span>Acepto que SEA (Spanish Entrepreneurship Association) y el AWS Student Builder Group at UC3M traten mi nombre, email y universidad solo para organizar este hackathon. Se borran después del evento.</span></label>
+              </div>
+              <div class="acts"><button class="btn">Crear cuenta →</button></div>
+              <div class="msg" id="signupMsg" role="status"></div>
+            </form>
+          </div>
+          <div id="signupSteps" class="hidden">
+            <div class="blk in snap">
+              <p class="eyebrow">Inscripción</p>
+              <h3>Tres enlaces y listo</h3>
+              <p class="small">Usa tu nombre completo en Meetup y aquí: así cruzamos las inscripciones. Solo o en pareja, gratis.</p>
+            </div>
+            <div class="blk in row snap"><p class="num">01</p><div><h3>Meetup</h3><p class="small">La inscripción oficial va por el Meetup del AWS Student Builder Group at UC3M. Apúntate con tu nombre completo.</p><a class="btn o sm" style="align-self:flex-start" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Apuntarme en Meetup →</a></div></div>
+            <div class="blk in row snap"><p class="num">02</p><div><h3>Plataforma del hackathon</h3><p class="small">Crea tu cuenta arriba con el mismo nombre. Aquí verás tu checklist, formarás pareja y entregarás el proyecto.</p></div></div>
+            <div class="blk in row snap"><p class="num">03</p><div><h3>AWS Builder Center</h3><p class="small">Crea tu perfil y únete al grupo. Te damos acceso y 100 $ en créditos de AWS.</p><a class="btn d sm" style="align-self:flex-start" href="https://builder.aws.com" target="_blank" rel="noopener">Regístrate →</a></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ PARTICIPANTE ============ -->
+  <div id="dash" class="hidden">
+    <header>
+      <div class="col">
+        <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
+        <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
+        <div class="g two">
+          <div class="blk in dark snap">
+            <p class="eyebrow o">08 / Plataforma</p>
+            <h1 id="hello">Hola</h1>
+            <p class="lead muted" id="eventLine"></p>
+            <p id="announce" class="banner hidden"></p>
+          </div>
+          <div class="stack">
+            <div class="blk in snap cd-box">
+              <p class="eyebrow">Cuenta atrás</p>
+              <p class="count" id="countdown">–</p>
+              <p class="small" id="deadlineLine"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section aria-labelledby="checks-t">
+      <div class="col">
+        <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--red)"></div>
+        <div class="blk in snap" style="padding-top:40px;padding-bottom:40px">
+          <p class="eyebrow">09 / Checklist</p>
+          <h2 id="checks-t">Antes del jueves 3 de diciembre</h2>
+        </div>
+        <div class="g two checks" id="checks"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="team-t">
+      <div class="col">
+        <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
+        <div class="g two">
+          <div class="blk in snap" style="justify-content:flex-start">
+            <p class="eyebrow">10 / Equipo</p>
+            <h2 id="team-t">Tu equipo</h2>
+            <div id="teamBox" style="display:flex;flex-direction:column;gap:12px"></div>
+            <div class="msg" id="teamMsg" role="status"></div>
+          </div>
+          <div class="blk in snap" style="justify-content:flex-start">
+            <p class="eyebrow">Jueves 3 dic</p>
+            <h2>Agenda</h2>
+            <ul class="agenda" id="agenda"></ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="sub-t">
+      <div class="col">
+        <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
+        <form class="blk in snap" id="subForm" style="justify-content:flex-start">
+          <p class="eyebrow">11 / Entrega</p>
+          <h2 id="sub-t">Entrega del proyecto</h2>
+          <p class="small muted" id="subState">Necesitas estar en un equipo para entregar. Una persona entrega por todo el equipo y se puede actualizar hasta el cierre.</p>
+          <div class="fields">
+            <div><label for="fRepo">Repositorio (obligatorio)</label><input id="fRepo" type="url" placeholder="https://github.com/..."></div>
+            <div><label for="fDemo">Demo desplegada</label><input id="fDemo" type="url" placeholder="https://..."></div>
+            <div><label for="fVideo">Vídeo (opcional)</label><input id="fVideo" type="url"></div>
+            <div><label for="fSlides">Presentación (opcional)</label><input id="fSlides" type="url"></div>
+            <div><label for="fModule">Módulo del reto</label>
+              <select id="fModule"><option value="">Elige uno</option><option>Web pública</option><option>Solicitudes</option><option>Base de datos de miembros con roles</option><option>Calendario compartido</option><option>Panel de cuotas</option><option>Comunicación entre clubs</option></select></div>
+            <div><label for="fServices">Servicios de AWS usados</label><input id="fServices" maxlength="300" placeholder="Lambda, DynamoDB, ..."></div>
+          </div>
+          <label for="fDesc">Qué habéis hecho</label>
+          <textarea id="fDesc" maxlength="1500"></textarea>
+          <div class="acts"><button class="btn" id="subBtn">Entregar →</button></div>
+          <div class="msg" id="subMsg" role="status"></div>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ ORGANIZACIÓN ============ -->
+  <header id="admin" class="hidden">
+    <div class="col">
+      <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(1 * var(--u));width:calc(1 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
+      <div class="blk in dark adm-title">
+        <h1>Panel de organización</h1>
+      </div>
+      <div class="tabs snap" role="tablist" id="adminTabs" aria-label="Secciones">
+        <button role="tab" type="button" aria-selected="true" data-a="stats">Estadísticas</button>
+        <button role="tab" type="button" aria-selected="false" data-a="people">Inscripciones</button>
+        <button role="tab" type="button" aria-selected="false" data-a="teams">Entregas</button>
+        <button role="tab" type="button" aria-selected="false" data-a="meetup">Meetup</button>
+        <button role="tab" type="button" aria-selected="false" data-a="admins">Admins</button>
+        <button role="tab" type="button" aria-selected="false" data-a="config">Ajustes</button>
+      </div>
+      <div class="blk in adm-panel" data-ap="stats" style="justify-content:flex-start">
+        <div class="st-wrap"><div class="st-col">
+        <div class="st-goal">
+          <div><p class="eyebrow">Objetivo de asistentes</p><p class="st-hero"><span id="stCount">0</span><span class="st-of"> / <span id="stGoal">70</span></span></p></div>
+          <p class="small muted" id="stGoalTxt"></p>
+        </div>
+        <div class="st-bar" role="progressbar" aria-label="Progreso hacia el objetivo" aria-valuemin="0" id="stBar"><span></span></div>
+        <div class="st-timerbox">
+          <div><p class="eyebrow">Día del hackathon</p><p class="small" id="tmState">Cuenta atrás de 2 horas. Al empezarla, el cierre de entregas pasa a ser dentro de 2 horas.</p></div>
+          <div class="acts" style="margin-top:0"><button class="btn" type="button" id="tmStart">Empezar cuenta atrás →</button><a class="btn ghost sm" id="tmOpen" href="./?timer" target="_blank" rel="noopener">Abrir pantalla</a></div>
+          <div class="msg" id="tmMsg" role="status"></div>
+        </div>
+        <div class="st-kpis" id="stKpis"></div>
+        </div>
+        <div class="st-col">
+          <figure class="st-card">
+            <figcaption><h3>Inscripciones acumuladas</h3><p class="small muted">Hora a hora. La línea discontinua es el objetivo.</p></figcaption>
+            <div class="st-plot" id="stLine"></div>
+          </figure>
+          <figure class="st-card">
+            <figcaption><h3>Por hora del día</h3><p class="small muted">Cuándo se apunta la gente (hora de Madrid).</p></figcaption>
+            <div class="st-plot" id="stHours"></div>
+          </figure>
+        </div>
+        <div class="st-col">
+          <figure class="st-card">
+            <figcaption><h3>Por universidad</h3><p class="small muted">Reparto de las personas registradas.</p></figcaption>
+            <div class="st-pie" id="stPie"></div>
+          </figure>
+        </div></div>
+      </div>
+      <div class="blk in adm-panel hidden" data-ap="people" style="justify-content:flex-start">
+        <p id="peopleSum" class="small muted"></p>
+        <div class="acts" style="margin-top:0"><input id="peopleQ" type="search" placeholder="Buscar por nombre, email, uni o equipo" aria-label="Buscar inscripciones"><button class="btn sm ghost" id="csvBtn" type="button">Descargar CSV</button></div>
+        <div class="tbl-wrap"><table id="peopleTbl"></table></div>
+      </div>
+      <div class="blk in adm-panel hidden" data-ap="teams" style="justify-content:flex-start">
+        <p id="teamsSum" class="small muted"></p>
+        <div class="tbl-wrap"><table id="teamsTbl"></table></div>
+      </div>
+      <div class="blk in adm-panel hidden" data-ap="admins" style="justify-content:flex-start">
+        <p class="small muted">Las personas admin ven este panel. Pon su email (el mismo con el que se registran en la plataforma). Pueden registrarse antes o después: el acceso se activa al entrar.</p>
+        <form class="acts" id="adminForm" style="margin-top:0"><input id="adminEmail" type="email" placeholder="email@ejemplo.com" aria-label="Email del nuevo admin" required><button class="btn sm" id="adminAddBtn">Dar acceso admin</button></form>
+        <div class="msg" id="adminMsg" role="status"></div>
+        <div class="tbl-wrap"><table id="adminsTbl"></table></div>
+      </div>
+      <div class="blk in adm-panel hidden" data-ap="meetup" style="justify-content:flex-start">
+        <p class="small muted">Exporta la lista de asistentes del evento en Meetup (CSV) y pégala o súbela aquí. También vale una lista de nombres, uno por línea. Se cruza por nombre completo (sin tildes ni mayúsculas) y se marcan como “Meetup ✓” los registrados y los que se registren después.</p>
+        <textarea id="csvIn" style="min-height:200px" aria-label="Lista de Meetup"></textarea>
+        <div class="acts"><input type="file" id="csvFile" accept=".csv,.txt,.xls" style="width:auto;border:0;padding:0"><button class="btn" id="importBtn" type="button">Importar</button></div>
+        <div class="msg" id="importMsg" role="status"></div>
+        <p class="small muted" id="meetupSum"></p>
+        <div class="tbl-wrap"><table id="meetupTbl"></table></div>
+      </div>
+      <div class="blk in adm-panel hidden" data-ap="config" style="justify-content:flex-start">
+        <p class="small muted">Agenda, enlaces, hora de cierre de entregas y aviso. Formato JSON. Las fechas en ISO con zona: <code>2026-12-03T21:00:00+01:00</code>.</p>
+        <textarea id="cfgIn" style="min-height:400px;font-family:var(--mono);font-size:13px" aria-label="Configuración"></textarea>
+        <div class="acts"><button class="btn" id="cfgBtn" type="button">Guardar</button></div>
+        <div class="msg" id="cfgMsg" role="status"></div>
+      </div>
+    </div>
+  </header>
+  </main>
+  <footer aria-label="Pie" style="position:relative;padding-top:calc(2 * var(--u))">
+    <div class="col">
+      <div class="g foot">
+        <div class="blk o-bg in snap" style="align-items:center;text-align:center">
+          <p class="mono" style="font-size:15px;line-height:1.4">AWS Student Builder Group at UC3M x SEA</p>
+        </div>
+        <nav class="blk dark in snap" aria-label="Enlaces del pie" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 32px">
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Meetup</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="../reto.html">El reto</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="#registro">Apúntate</a>
+        </nav>
+      </div>
+      <div class="blk in snap" style="align-items:center;text-align:center;padding-top:16px;padding-bottom:16px">
+        <p style="font-size:13px;color:var(--muted)">Hackathon organizado por estudiantes del AWS Student Builder Group at UC3M y SEA. © 2026</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const page = document.querySelector('.page');
+  const root = document.documentElement;
+  let busy = false;
+  function layout() {
+    if (busy) return; busy = true;
+    const W = page.clientWidth;
+    const U = W >= 1312 ? 80 : W >= 800 ? 64 : 48;
+    root.style.setProperty('--u', U + 'px');
+    const fit = Math.floor((W - 32) / U);
+    const mode = fit >= 16 ? 'c16' : fit >= 12 ? 'c12' : 'cs';
+    const cells = mode === 'c16' ? 16 : mode === 'c12' ? 12 : fit;
+    page.classList.remove('c16', 'c12', 'cs'); page.classList.add(mode);
+    page.classList.toggle('wide', fit >= 20);
+    const colW = cells * U, left = Math.round((W - colW) / 2);
+    document.querySelectorAll('.nav .col').forEach(c => { c.style.marginLeft = left + 'px'; });
+    root.style.setProperty('--cx', left + 'px');
+    root.style.setProperty('--gx', left + 'px');
+    page.querySelectorAll('.col').forEach(c => { c.style.width = colW + 'px'; c.style.maxWidth = 'none'; });
+    const snaps = [...page.querySelectorAll('.snap')];
+    page.classList.add('measuring');
+    snaps.forEach(e => { e.style.minHeight = ''; });
+    const hs = snaps.map(e => e.getBoundingClientRect().height);
+    snaps.forEach((e, i) => { e.style.minHeight = Math.max(1, Math.ceil((hs[i] - 0.5) / U)) * U + 'px'; });
+    page.classList.remove('measuring');
+    busy = false;
+  }
+  layout();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  let raf; new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); }).observe(page);
+  new MutationObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); })
+    .observe(document.querySelector('main'), { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+  const el = (tag, attrs = {}, ...kids) => {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) {
+      if (k === 'class') n.className = v; else if (k === 'text') n.textContent = v; else n.setAttribute(k, v);
+    }
+    for (const k of kids) n.append(k);
+    return n;
+  };
+  function copyBtn(text) {
+    const b = el('button', { type: 'button', class: 'copy', 'aria-label': 'Copiar código' });
+    const ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="1"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg>';
+    b.innerHTML = ICON + '<span>Copiar</span>';
+    b.onclick = async () => {
+      try { await navigator.clipboard.writeText(text); }
+      catch { const t = el('textarea'); t.value = text; document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); }
+      b.querySelector('span').textContent = '¡Copiado!';
+      setTimeout(() => { b.querySelector('span').textContent = 'Copiar'; }, 1800);
+    };
+    return b;
+  }
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+    del(k) { try { localStorage.removeItem(k); } catch {} },
+  };
+  const say = (id, text, ok) => {
+    const m = $(id); clearTimeout(m._t); m.textContent = text || ''; m.className = 'msg ' + (ok ? 'okm' : text ? 'err' : '');
+    if (ok && text) m._t = setTimeout(() => { m.textContent = ''; m.className = 'msg'; }, 2000);   // los avisos de éxito se van a los 2 s
+  };
+  const fmt = (iso) => iso ? new Date(iso).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Europe/Madrid' }) : '';
+
+  let AUTH = null, ME = null, timer = null;
+
+  // ---------- Cognito (login sin contraseña con código por email) ----------
+  async function cognito(target, body) {
+    const r = await fetch(`https://cognito-idp.${AUTH.region}.amazonaws.com/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-amz-json-1.1', 'X-Amz-Target': 'AWSCognitoIdentityProviderService.' + target },
+      body: JSON.stringify(body),
+    });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      const t = String(j.__type || '');
+      if (t.includes('NotAuthorized') || t.includes('UserNotFound')) throw new Error('Email o contraseña incorrectos');
+      throw new Error(j.message || t || 'Error de inicio de sesión');
+    }
+    return j;
+  }
+  let session = null, loginEmail = null;
+  async function passwordLogin(email, password) {
+    const r = await cognito('InitiateAuth', { AuthFlow: 'USER_PASSWORD_AUTH', ClientId: AUTH.clientId,
+      AuthParameters: { USERNAME: email, PASSWORD: password } });
+    if (!r.AuthenticationResult) throw new Error('No se pudo iniciar sesión');
+    saveTokens(r.AuthenticationResult);
+  }
+  const pwMode = () => AUTH && AUTH.mode === 'password';
+  async function startLogin(email) {
+    loginEmail = email;
+    let r = await cognito('InitiateAuth', { AuthFlow: 'USER_AUTH', ClientId: AUTH.clientId,
+      AuthParameters: { USERNAME: email, PREFERRED_CHALLENGE: 'EMAIL_OTP' } });
+    if (r.ChallengeName === 'SELECT_CHALLENGE') {
+      r = await cognito('RespondToAuthChallenge', { ChallengeName: 'SELECT_CHALLENGE', ClientId: AUTH.clientId, Session: r.Session,
+        ChallengeResponses: { USERNAME: email, ANSWER: 'EMAIL_OTP' } });
+    }
+    session = r.Session;
+  }
+  async function finishLogin(code) {
+    const r = await cognito('RespondToAuthChallenge', { ChallengeName: 'EMAIL_OTP', ClientId: AUTH.clientId, Session: session,
+      ChallengeResponses: { USERNAME: loginEmail, EMAIL_OTP_CODE: code } });
+    saveTokens(r.AuthenticationResult);
+  }
+  function saveTokens(a, keepRefresh) {
+    const t = store.get('tok') || {};
+    store.set('tok', { id: a.IdToken, exp: Date.now() + (a.ExpiresIn - 60) * 1000, refresh: a.RefreshToken || t.refresh });
+  }
+  async function idToken() {
+    const t = store.get('tok');
+    if (!t) return null;
+    if (Date.now() < t.exp) return t.id;
+    if (!t.refresh) return null;
+    try {
+      const r = await cognito('InitiateAuth', { AuthFlow: 'REFRESH_TOKEN_AUTH', ClientId: AUTH.clientId, AuthParameters: { REFRESH_TOKEN: t.refresh } });
+      saveTokens(r.AuthenticationResult); return store.get('tok').id;
+    } catch { store.del('tok'); return null; }
+  }
+
+  // ---------- API ----------
+  async function api(method, path, body) {
+    const headers = { 'Content-Type': 'application/json' };
+    const tok = await idToken();
+    if (tok) headers.Authorization = tok;
+    const r = await fetch('/api' + path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401) { store.del('tok'); showAuth(); throw new Error('Sesión caducada'); }
+    if (!r.ok) throw new Error(j.error || 'Error');
+    return j;
+  }
+  async function busy(btn, fn) { btn.disabled = true; try { return await fn(); } finally { btn.disabled = false; } }
+
+
+  // ver/ocultar contraseña
+  (() => {
+    const OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+    const SHUT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+    document.querySelectorAll('input[type=password]').forEach(inp => {
+      const wrap = document.createElement('span'); wrap.className = 'pw';
+      inp.parentNode.insertBefore(wrap, inp); wrap.appendChild(inp);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'eye';
+      const set = (show) => { inp.type = show ? 'text' : 'password'; b.innerHTML = show ? SHUT : OPEN; b.setAttribute('aria-label', show ? 'Ocultar contraseña' : 'Mostrar contraseña'); b.setAttribute('aria-pressed', String(show)); };
+      b.onclick = () => { set(inp.type === 'password'); inp.focus(); };
+      set(false); wrap.appendChild(b);
+    });
+  })();
+  // ---------- vistas ----------
+  function show(id) { ['#auth', '#dash', '#admin'].forEach(s => $(s).classList.toggle('hidden', s !== id)); $('#navJoin').classList.toggle('hidden', id !== '#auth'); fitAuth(); }
+  function fitAuth() { const auth = !$('#auth').classList.contains('hidden'); const login = !$('#loginForm').classList.contains('hidden'); document.querySelector('.page').classList.toggle('fit', (auth && login) || !$('#admin').classList.contains('hidden')); }
+  function showAuth() { show('#auth'); $('#logout').classList.add('hidden'); $('#adminToggle').classList.add('hidden'); }
+
+  $$('#auth .tabs button').forEach(b => b.onclick = () => {
+    $$('#auth .tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    $('#loginForm').classList.toggle('hidden', b.dataset.tab !== 'login');
+    $('#signupForm').classList.toggle('hidden', b.dataset.tab !== 'signup');
+    $('#signupSteps').classList.toggle('hidden', b.dataset.tab !== 'signup');
+    fitAuth();
+  });
+  function openSignup() { if (/^#(registro|signup)$/.test(location.hash)) { const t = $('#auth .tabs button[data-tab="signup"]'); if (t) t.click(); } }
+  openSignup(); window.addEventListener('hashchange', openSignup);
+
+  $('#loginForm').onsubmit = (e) => { e.preventDefault(); busy($('#loginBtn'), async () => {
+    try {
+      if (pwMode()) {
+        await passwordLogin($('#lEmail').value.trim().toLowerCase(), $('#lPass').value);
+        say('#loginMsg', ''); await load(); return;
+      }
+      if ($('#otpBox').classList.contains('hidden')) {
+        await startLogin($('#lEmail').value.trim().toLowerCase());
+        $('#otpBox').classList.remove('hidden'); $('#lCode').focus();
+        $('#loginBtn').textContent = 'Entrar';
+        say('#loginMsg', 'Si estás registrado, te ha llegado un código por email.', true);
+      } else {
+        await finishLogin($('#lCode').value.trim());
+        say('#loginMsg', ''); await load();
+      }
+    } catch (err) { say('#loginMsg', err.message); }
+  }); };
+
+  $('#signupForm').onsubmit = (e) => { e.preventDefault(); const b = e.submitter; busy(b, async () => {
+    try {
+      const email = $('#sEmail').value.trim().toLowerCase();
+      const password = $('#sPass').value;
+      await api('POST', '/register', { email, name: $('#sName').value.trim(), university: $('#sUni').value, consent: $('#sConsent').checked, password });
+      if (pwMode()) { await passwordLogin(email, password); await load(); return; }
+      $$('#auth .tabs button')[0].click();
+      $('#lEmail').value = email;
+      await startLogin(email);
+      $('#otpBox').classList.remove('hidden'); $('#lCode').focus(); $('#loginBtn').textContent = 'Entrar';
+      say('#loginMsg', 'Registrado. Te hemos enviado un código para entrar.', true);
+    } catch (err) { say('#signupMsg', err.message); }
+  }); };
+
+  $('#logout').onclick = () => { store.del('tok'); location.reload(); };
+  $('#adminToggle').onclick = () => {
+    const inAdmin = !$('#admin').classList.contains('hidden');
+    if (inAdmin) { show('#dash'); $('#adminToggle').textContent = 'Organización'; }
+    else { show('#admin'); $('#adminToggle').textContent = 'Mi vista'; loadAdmin(); }
+  };
+
+  async function load() {
+    try { ME = await api('GET', '/me'); } catch (e) { if (!$('#auth').classList.contains('hidden')) say('#loginMsg', e.message); else showAuth(); return; }
+    $('#logout').classList.remove('hidden');
+    $('#adminToggle').classList.toggle('hidden', !ME.isAdmin);
+    if (TIMER_MODE && ME.isAdmin) { openTimerView(); return; }
+    show('#dash'); renderDash();
+  }
+
+  function renderDash() {
+    const { profile: p, config: c, team } = ME;
+    $('#hello').textContent = 'Bienvenida';
+    $('#eventLine').textContent = `${c.eventName} · ${fmt(c.eventStart)} · ${c.location}`;
+    $('#announce').classList.toggle('hidden', !c.announcement); $('#announce').textContent = c.announcement || '';
+
+    clearInterval(timer);
+    const tick = () => {
+      const now = Date.now(), start = new Date(c.eventStart), end = c.submissionDeadline ? new Date(c.submissionDeadline) : null;
+      let ms = start - now, label = 'Cuenta atrás';
+      if (ms <= 0 && end && end > now) { ms = end - now; label = 'Cierre de entregas en'; }
+      $('#countdown').previousElementSibling.textContent = label;
+      if (ms <= 0) { $('#countdown').textContent = end && end <= now ? 'Entregas cerradas' : '¡En marcha!'; return; }
+      const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60, sec = Math.floor(ms / 1e3) % 60;
+      const pad = (n) => String(n).padStart(2, '0');
+      $('#countdown').innerHTML = (d > 0 ? `${d}<small>d</small>` : '') + `${pad(h)}:${pad(m)}:${pad(sec)}`;
+    };
+    tick(); timer = setInterval(tick, 1000);
+    $('#deadlineLine').textContent = c.submissionDeadline ? `Cierre de entregas: ${fmt(c.submissionDeadline)}` : 'Hora de cierre de entregas: la confirmamos pronto.';
+
+    const ag = $('#agenda'); ag.replaceChildren();
+    if (!c.agenda || !c.agenda.length) ag.append(el('li', { class: 'muted', text: 'La agenda por horas se publica en cuanto esté cerrada.' }));
+    else c.agenda.forEach(a => ag.append(el('li', {}, el('b', { text: a.time || '–' }), el('span', { text: a.title || '' }))));
+
+    // Checklist
+    const L = c.links || {};
+    const chk = $('#checks'); chk.replaceChildren();
+    const item = (state, title, desc, ...extra) => chk.append(el('div', { class: 'check blk in snap' },
+      el('div', { class: 'dot ' + state, 'aria-hidden': 'true', text: state === 'ok' ? '✓' : state === 'warn' ? '!' : '·' }),
+      el('div', {}, el('h3', {}, title, ' ', el('span', { class: 'pill ' + (state === 'ok' ? 'ok' : ''), text: state === 'ok' ? 'Hecho' : 'Pendiente' })),
+        el('p', { text: desc }), ...extra)));
+    const link = (href, text) => href ? el('a', { href, target: '_blank', rel: 'noopener', class: 'btn sm ghost', text }) : el('span', { class: 'pill', text: 'Enlace pendiente' });
+
+    item(p.meetupVerified ? 'ok' : '', 'Apuntarte en Meetup',
+      p.meetupVerified ? 'Te tenemos en la lista de Meetup.' : 'Confírmate en el evento de Meetup con tu nombre completo, el mismo que pusiste aquí. Lo marcamos cuando importemos la lista.',
+      el('div', { class: 'acts' }, link(L.meetup, 'Ir a Meetup')));
+
+    const bc = el('input', { type: 'url', placeholder: 'https://builder.aws.com/...', 'aria-label': 'URL de tu perfil de Builder Center' });
+    bc.value = p.builderCenterUrl || '';
+    const bcBtn = el('button', { class: 'btn sm', type: 'button', text: 'Guardar' });
+    bcBtn.onclick = () => busy(bcBtn, async () => { try { await api('PUT', '/me', { builderCenterUrl: bc.value.trim() }); await load(); } catch (e) { alertInline(bcBtn, e.message); } });
+    item(p.builderCenterUrl ? 'ok' : '', 'Perfil en AWS Builder Center y unirte al grupo', 'Crea tu perfil, busca el grupo “AWS Student Builder Group at UC3M”, únete y pega aquí el enlace a tu perfil.',
+      el('div', { class: 'acts' }, link(L.builderCenter, 'Abrir Builder Center')), el('div', { class: 'acts' }, bc, bcBtn));
+
+    const reloadBtn = el('button', { class: 'btn sm ghost', type: 'button', text: 'Recargar' });
+    reloadBtn.onclick = load;
+    const ac = p.awsCheck, req = c.requiredChecks || [];
+    const names = { mfaRoot: 'MFA en el usuario root', budget: 'Presupuesto con alerta (AWS Budgets)' };
+    const allOk = ac && req.every(k => ac.results && ac.results[k] === true);
+    const res = el('div', { class: 'acts' });
+    if (ac) req.forEach(k => res.append(el('span', { class: 'pill ' + (ac.results?.[k] === true ? 'ok' : 'bad'), text: (ac.results?.[k] === true ? '✓ ' : '✗ ') + (names[k] || k) })));
+    if (!ME.checkerUrl) {
+      const aw = el('input', { type: 'checkbox', id: 'awsChk', style: 'width:auto' }); aw.checked = !!p.awsReady;
+      aw.onchange = async () => { try { await api('PUT', '/me', { awsReady: aw.checked }); ME.profile.awsReady = aw.checked; renderDash(); } catch {} };
+      item(p.awsReady ? 'ok' : '', 'Cuenta de AWS lista',
+        'Crea tu cuenta de AWS, activa MFA en el usuario root y pon una alerta de presupuesto (AWS Budgets). Marca la casilla cuando lo tengas.',
+        el('div', { class: 'acts' }, link(L.awsSignup, 'Crear cuenta de AWS'), link(L.mfaDocs, 'Cómo activar MFA'), link(L.budgetDocs, 'Cómo crear el presupuesto'), el('label', { for: 'awsChk', class: 'inline' }, aw, 'Ya la tengo')));
+    } else
+    item(allOk ? 'ok' : ac ? 'warn' : '', 'Cuenta de AWS lista',
+      ac ? `Última comprobación: ${fmt(ac.at)} (cuenta ${ac.accountId.slice(0, 4)}…${ac.accountId.slice(-4)}). Si arreglas algo, borra el stack “hackathon-checkin” y vuelve a lanzarlo.`
+         : 'Crea tu cuenta, activa MFA en root y crea un presupuesto. Después pulsa “Comprobar mi cuenta”: se abre CloudFormation en tu cuenta, marca la casilla de IAM y crea el stack. En 1 minuto aparece aquí el resultado.',
+      el('div', { class: 'acts' }, link(L.awsSignup, 'Crear cuenta de AWS'), link(L.mfaDocs, 'Cómo activar MFA'), link(L.budgetDocs, 'Cómo crear el presupuesto'), el('a', { href: ME.checkerUrl, target: '_blank', rel: 'noopener', class: 'btn sm', text: 'Comprobar mi cuenta' }), reloadBtn), res);
+
+    const ai = el('input', { type: 'checkbox', id: 'aiChk', style: 'width:auto' }); ai.checked = !!p.aiReady;
+    ai.onchange = async () => { try { await api('PUT', '/me', { aiReady: ai.checked }); ME.profile.aiReady = ai.checked; renderDash(); } catch {} };
+    item(p.aiReady ? 'ok' : '', 'Asistente de IA para programar',
+      'Te recomendamos llegar con un asistente de IA instalado para montar tu web: Kiro (de AWS) o Claude Code. Marca la casilla cuando lo tengas.',
+      el('div', { class: 'acts' }, link(L.ai, 'Kiro'), L.aiClaude ? link(L.aiClaude, 'Claude Code') : '', el('label', { for: 'aiChk', class: 'inline' }, ai, 'Ya lo tengo')));
+
+    // Equipo
+    const tb = $('#teamBox'); tb.replaceChildren();
+    if (team) {
+      tb.append(el('h3', { text: team.name }),
+        el('p', { class: 'muted codeRow', style: 'margin:0 0 6px' }, 'Código para que se unan: ', el('span', { class: 'code', text: team.code }), copyBtn(team.code)),
+        el('ul', { class: 'plain' }, ...team.members.map(m => el('li', { text: m.name || m.email }))));
+      const lv = el('button', { class: 'btn sm ghost', type: 'button', text: 'Salir del equipo' });
+      lv.onclick = () => busy(lv, async () => { try { await api('POST', '/teams/leave'); await load(); } catch (e) { say('#teamMsg', e.message); } });
+      tb.append(lv);
+    } else {
+      const n = el('input', { placeholder: 'Nombre del equipo', maxlength: '60', 'aria-label': 'Nombre del equipo' });
+      const cb = el('button', { class: 'btn sm', type: 'button', text: 'Crear equipo' });
+      const code = el('input', { placeholder: 'Código (6 letras)', maxlength: '6', 'aria-label': 'Código de equipo' });
+      const jb = el('button', { class: 'btn sm ghost', type: 'button', text: 'Unirme' });
+      cb.onclick = () => busy(cb, async () => { try { await api('POST', '/teams', { name: n.value }); await load(); } catch (e) { say('#teamMsg', e.message); } });
+      jb.onclick = () => busy(jb, async () => { try { await api('POST', '/teams/join', { code: code.value }); await load(); } catch (e) { say('#teamMsg', e.message); } });
+      tb.append(el('p', { class: 'small muted', text: 'Equipos de 1 o 2 personas. Si vas en pareja, uno crea el equipo y le pasa el código al otro.' }),
+        el('div', { class: 'acts' }, n, cb), el('div', { class: 'acts' }, code, jb));
+    }
+
+    // Enlaces
+    const ul = $('#links');
+    if (ul) { ul.replaceChildren();
+    const labels = { website: 'Web del hackathon', meetup: 'Meetup del AWS Student Builder Group', whatsapp: 'Grupo de WhatsApp', builderCenter: 'AWS Builder Center', awsSignup: 'Crear cuenta de AWS', mfaDocs: 'Cómo activar MFA en root', budgetDocs: 'Cómo crear una alerta de presupuesto', awsConsole: 'Consola de AWS', ai: 'Kiro (asistente de IA de AWS)', aiClaude: 'Claude Code' };
+    Object.entries(L).forEach(([k, v]) => { if (v) ul.append(el('li', {}, el('a', { href: v, target: '_blank', rel: 'noopener', text: labels[k] || k }))); }); }
+
+    // Entrega
+    const s = team && team.submission;
+    $('#subForm').querySelectorAll('input,select,textarea,button').forEach(x => x.disabled = !team);
+    if (s) {
+      $('#fRepo').value = s.repoUrl || ''; $('#fDemo').value = s.demoUrl || ''; $('#fVideo').value = s.videoUrl || '';
+      $('#fSlides').value = s.slidesUrl || ''; $('#fModule').value = s.module || ''; $('#fServices').value = s.awsServices || ''; $('#fDesc').value = s.description || '';
+      $('#subState').textContent = `Entregado el ${fmt(s.submittedAt)}. Puedes actualizarlo hasta el cierre.`;
+      $('#subBtn').textContent = 'Actualizar entrega';
+    }
+  }
+  function alertInline(btn, text) { btn.parentElement.after(el('div', { class: 'msg err', text })); }
+
+  $('#subForm').onsubmit = (e) => { e.preventDefault(); busy($('#subBtn'), async () => {
+    try {
+      await api('PUT', '/teams/submission', { repoUrl: $('#fRepo').value.trim(), demoUrl: $('#fDemo').value.trim(), videoUrl: $('#fVideo').value.trim(),
+        slidesUrl: $('#fSlides').value.trim(), module: $('#fModule').value, awsServices: $('#fServices').value.trim(), description: $('#fDesc').value.trim() });
+      say('#subMsg', '¡Entregado!', true); await load();
+    } catch (err) { say('#subMsg', err.message); }
+  }); };
+
+  // ---------- admin ----------
+  let PEOPLE = [];
+  $$('#adminTabs button').forEach(b => b.onclick = () => {
+    $$('#adminTabs button').forEach(x => x.setAttribute('aria-selected', x === b)); setTimeout(fitAdmin, 0);
+    $$('[data-ap]').forEach(p => p.classList.toggle('hidden', p.dataset.ap !== b.dataset.a));
+  });
+  const yn = (v) => v ? '✓' : '–';
+  function table(tbl, head, rows) {
+    tbl.replaceChildren(el('thead', {}, el('tr', {}, ...head.map(h => el('th', { text: h })))),
+      el('tbody', {}, ...rows.map(r => el('tr', {}, ...r.map(c => el('td', {}, c instanceof Node ? c : String(c ?? '')))))));
+  }
+  let TNAME = {}, AWSOK = () => false;
+  const norm = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  function renderPeople() {
+    const q = norm($('#peopleQ').value);
+    const rows = PEOPLE.filter(p => !q || norm([p.name, p.email, p.university, TNAME[p.teamId]].join(' ')).includes(q));
+    table($('#peopleTbl'), ['Registro', 'Nombre', 'Email', 'Uni', 'Equipo', 'Meetup', 'Builder Center', 'AWS', 'IA'],
+      rows.map(p => [fmt(p.createdAt), p.name, p.email, p.university, TNAME[p.teamId] || '', yn(p.meetupVerified),
+        p.builderCenterUrl ? el('a', { href: p.builderCenterUrl, target: '_blank', rel: 'noopener', text: 'perfil' }) : '–',
+        p.awsCheck ? (AWSOK(p) ? '✓ ' : '✗ ') + fmt(p.awsCheck.at) : yn(p.awsReady), yn(p.aiReady)]));
+  }
+  $('#peopleQ').oninput = renderPeople;
+  function renderAdmins(admins) {
+    table($('#adminsTbl'), ['Email', 'Nombre', 'Desde', 'Dado por', ''],
+      admins.map(a => {
+        let act = el('span', { class: 'pill', text: a.fixed ? 'Fijo' : '' });
+        if (!a.fixed && a.email !== ME.profile.email) {
+          act = el('button', { class: 'btn sm ghost', type: 'button', text: 'Quitar' });
+          act.onclick = () => busy(act, async () => {
+            try { const r = await api('POST', '/admin/admins', { email: a.email, admin: false }); renderAdmins(r.admins); say('#adminMsg', `${a.email} ya no es admin.`, true); }
+            catch (e) { say('#adminMsg', e.message); }
+          });
+        } else if (!a.fixed) act = el('span', { class: 'pill', text: 'Tú' });
+        return [a.email, a.name || (a.registered ? '' : 'Aún no registrado'), a.addedAt ? fmt(a.addedAt) : '', a.addedBy || '', act];
+      }));
+  }
+  $('#adminForm').onsubmit = (e) => { e.preventDefault(); busy($('#adminAddBtn'), async () => {
+    try { const email = $('#adminEmail').value.trim().toLowerCase(); const r = await api('POST', '/admin/admins', { email, admin: true });
+      renderAdmins(r.admins); $('#adminEmail').value = ''; say('#adminMsg', `${email} ya es admin.`, true); }
+    catch (err) { say('#adminMsg', err.message); }
+  }); };
+  // ---------- estadísticas ----------
+  const UNIS = ['UC3M', 'UPM', 'ICADE', 'UCJC', 'UCM', 'UEM', 'Otra'];
+  const UNI_COLORS = { UC3M: '#eb6834', UPM: '#1baf7a', ICADE: '#eda100', UCJC: '#e87ba4', UCM: '#2f6fd1', UEM: '#8a5a2b', Otra: '#6250d6' };
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const sv = (tag, attrs = {}, ...kids) => { const n = document.createElementNS(SVGNS, tag); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); n.append(...kids); return n; };
+  let tip;
+  function showTip(evt, html) {
+    if (!tip) { tip = el('div', { class: 'st-tip', role: 'status' }); document.body.append(tip); }
+    tip.replaceChildren(...html); tip.style.display = 'block';
+    const x = Math.min(evt.clientX + 14, window.innerWidth - tip.offsetWidth - 8);
+    tip.style.left = x + 'px'; tip.style.top = (evt.clientY - tip.offsetHeight - 12) + 'px';
+  }
+  const hideTip = () => { if (tip) tip.style.display = 'none'; };
+  const hourFmt = (d) => d.toLocaleString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+  // fecha corta en números para el eje: 24/11 16h
+  const shortFmt = (t) => { const o = {}; new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', hour: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Madrid' }).formatToParts(new Date(t)).forEach(q => o[q.type] = q.value); return `${o.day}/${o.month} ${o.hour}h`; };
+  function niceMax(v) { const m = Math.max(1, v); const p = Math.pow(10, Math.floor(Math.log10(m))); for (const f of [1, 2, 2.5, 5, 10]) if (f * p >= m) return f * p; return 10 * p; }
+
+  function lineChart(box, times, goal) {
+    box.replaceChildren();
+    const W = Math.max(280, box.clientWidth || 600), H = 190, L = 40, R = 16, T = 16, B = 34;
+    const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': `Inscripciones acumuladas: ${times.length} de ${goal}` });
+    if (!times.length) { box.append(el('p', { class: 'small muted', text: 'Todavía no hay inscripciones.' })); return; }
+    const HOUR = 36e5;
+    const t0 = Math.floor(times[0] / HOUR) * HOUR, t1 = Math.max(Math.ceil(Date.now() / HOUR) * HOUR, t0 + HOUR);
+    const pts = []; let i = 0;
+    for (let t = t0; t <= t1; t += HOUR) { let n = 0; while (i < times.length && times[i] < t + HOUR) { i++; n++; } pts.push({ t, total: i, n }); }
+    const yMax = niceMax(Math.max(goal, pts[pts.length - 1].total));
+    const x = (t) => L + (t - t0) / Math.max(1, t1 - t0) * (W - L - R), y = (v) => T + (1 - v / yMax) * (H - T - B);
+    for (let k = 0; k <= 4; k++) { const v = yMax * k / 4, yy = y(v);
+      svg.append(sv('line', { x1: L, x2: W - R, y1: yy, y2: yy, class: 'st-grid' }), sv('text', { x: L - 8, y: yy + 4, 'text-anchor': 'end', class: 'st-ax' }, String(Math.round(v)))); }
+    const ticks = Math.max(2, Math.min(6, pts.length, Math.floor((W - L - R) / 84) + 1)); for (let k = 0; k < ticks; k++) { const p = pts[Math.round(k * (pts.length - 1) / Math.max(1, ticks - 1))];
+      svg.append(sv('text', { x: x(p.t), y: H - 10, 'text-anchor': k === 0 ? 'start' : k === ticks - 1 ? 'end' : 'middle', class: 'st-ax' },
+        shortFmt(p.t))); }
+    svg.append(sv('line', { x1: L, x2: W - R, y1: y(goal), y2: y(goal), class: 'st-goalline' }),
+      sv('text', { x: W - R, y: y(goal) - 6, 'text-anchor': 'end', class: 'st-ax st-goallbl' }, `Objetivo ${goal}`));
+    const d = pts.map((p, k) => `${k ? 'L' : 'M'}${x(p.t).toFixed(1)},${y(p.total).toFixed(1)}`).join('');
+    svg.append(sv('path', { d: d + `L${x(pts[pts.length - 1].t)},${y(0)}L${x(t0)},${y(0)}Z`, class: 'st-area' }), sv('path', { d, class: 'st-line' }));
+    const last = pts[pts.length - 1];
+    svg.append(sv('circle', { cx: x(last.t), cy: y(last.total), r: 4.5, class: 'st-dot' }));
+    const cross = sv('line', { y1: T, y2: H - B, class: 'st-cross', style: 'display:none' }), hover = sv('circle', { r: 5, class: 'st-dot', style: 'display:none' });
+    const hit = sv('rect', { x: L, y: T, width: W - L - R, height: H - T - B, fill: 'transparent' });
+    hit.addEventListener('pointermove', (e) => {
+      const r = svg.getBoundingClientRect(), px = (e.clientX - r.left) * W / r.width;
+      const k = Math.max(0, Math.min(pts.length - 1, Math.round((px - L) / (W - L - R) * (pts.length - 1)))), p = pts[k];
+      cross.setAttribute('x1', x(p.t)); cross.setAttribute('x2', x(p.t)); cross.style.display = '';
+      hover.setAttribute('cx', x(p.t)); hover.setAttribute('cy', y(p.total)); hover.style.display = '';
+      showTip(e, [el('b', { text: `${p.total} inscritos` }), el('span', { text: `+${p.n} esa hora` }), el('span', { class: 'st-tip-m', text: hourFmt(new Date(p.t)) })]);
+    });
+    hit.addEventListener('pointerleave', () => { cross.style.display = 'none'; hover.style.display = 'none'; hideTip(); });
+    svg.append(cross, hover, hit); box.append(svg);
+  }
+
+  function hoursChart(box, times) {
+    box.replaceChildren();
+    const W = Math.max(280, box.clientWidth || 600), H = 140, L = 32, R = 8, T = 12, B = 28;
+    const c = Array(24).fill(0);
+    times.forEach(t => { c[Number(new Date(t).toLocaleString('en-GB', { hour: '2-digit', hour12: false, timeZone: 'Europe/Madrid' })) % 24]++; });
+    const yMax = niceMax(Math.max(...c)), bw = (W - L - R) / 24;
+    const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: '100%', role: 'img', 'aria-label': 'Nuevas inscripciones por hora del día' });
+    const y = (v) => T + (1 - v / yMax) * (H - T - B);
+    for (let k = 0; k <= 2; k++) { const v = yMax * k / 2; svg.append(sv('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'st-grid' }), sv('text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end', class: 'st-ax' }, String(Math.round(v)))); }
+    c.forEach((n, h) => {
+      const bx = L + h * bw + 1, bh = y(0) - y(n), w = Math.max(2, bw - 2);
+      if (n) svg.append(sv('path', { class: 'st-barr', d: `M${bx},${y(0)}v${-Math.max(0, bh - 3)}q0,-3 3,-3h${w - 6}q3,0 3,3v${Math.max(0, bh - 3)}z` }));
+      if (h % 3 === 0) svg.append(sv('text', { x: bx + w / 2, y: H - 8, 'text-anchor': 'middle', class: 'st-ax' }, `${h}h`));
+      const hit = sv('rect', { x: L + h * bw, y: T, width: bw, height: H - T - B, fill: 'transparent' });
+      hit.addEventListener('pointermove', (e) => showTip(e, [el('b', { text: `${n} inscripciones` }), el('span', { class: 'st-tip-m', text: `de ${h}:00 a ${h}:59` })]));
+      hit.addEventListener('pointerleave', hideTip); svg.append(hit);
+    });
+    box.append(svg);
+  }
+
+  function pieChart(box, people) {
+    box.replaceChildren();
+    const counts = UNIS.map(u => [u, people.filter(p => (UNIS.includes(p.university) ? p.university : 'Otra') === u).length]).filter(([, n]) => n);
+    const total = people.length;
+    if (!total) { box.append(el('p', { class: 'small muted', text: 'Todavía no hay inscripciones.' })); return; }
+    const S = 200, r = 92, ri = 58, cx = S / 2, cy = S / 2;
+    const svg = sv('svg', { viewBox: `0 0 ${S} ${S}`, class: 'st-donut', role: 'img', 'aria-label': 'Reparto por universidad: ' + counts.map(([u, n]) => `${u} ${n}`).join(', ') });
+    let a = -Math.PI / 2;
+    const pt = (ang, rad) => [cx + rad * Math.cos(ang), cy + rad * Math.sin(ang)];
+    counts.forEach(([u, n]) => {
+      const sweep = n / total * Math.PI * 2, a2 = a + sweep;
+      let shape;
+      if (counts.length === 1) shape = sv('path', { d: `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0M${cx - ri},${cy}a${ri},${ri} 0 1,1 ${2 * ri},0a${ri},${ri} 0 1,1 ${-2 * ri},0`, 'fill-rule': 'evenodd' });
+      else { const [x1, y1] = pt(a, r), [x2, y2] = pt(a2, r), [x3, y3] = pt(a2, ri), [x4, y4] = pt(a, ri), big = sweep > Math.PI ? 1 : 0;
+        shape = sv('path', { d: `M${x1},${y1}A${r},${r} 0 ${big},1 ${x2},${y2}L${x3},${y3}A${ri},${ri} 0 ${big},0 ${x4},${y4}Z` }); }
+      shape.setAttribute('fill', UNI_COLORS[u]); shape.setAttribute('class', 'st-slice');
+      shape.addEventListener('pointermove', (e) => showTip(e, [el('b', { text: u }), el('span', { text: `${n} personas · ${Math.round(n / total * 100)} %` })]));
+      shape.addEventListener('pointerleave', hideTip);
+      svg.append(shape); a = a2;
+    });
+    svg.append(sv('text', { x: cx, y: cy - 2, 'text-anchor': 'middle', class: 'st-donut-n' }, String(total)), sv('text', { x: cx, y: cy + 18, 'text-anchor': 'middle', class: 'st-ax' }, 'personas'));
+    const leg = el('ul', { class: 'st-legend' }, ...counts.map(([u, n]) => el('li', {}, el('i', { style: `background:${UNI_COLORS[u]}`, 'aria-hidden': 'true' }), el('span', { text: u }), el('b', { text: `${n} · ${Math.round(n / total * 100)} %` }))));
+    box.append(svg, leg);
+  }
+
+  let STATS_DATA = null;
+  function renderStats(people, teams) {
+    STATS_DATA = [people, teams];
+    const goal = Number(ME.config.goal) || 70, n = people.length;
+    $('#stCount').textContent = n; $('#stGoal').textContent = goal;
+    const pct = Math.min(100, Math.round(n / goal * 100));
+    $('#stBar').setAttribute('aria-valuemax', goal); $('#stBar').setAttribute('aria-valuenow', n);
+    $('#stBar').firstElementChild.style.width = pct + '%';
+    const start = new Date(ME.config.eventStart), days = Math.ceil((start - Date.now()) / 864e5);
+    $('#stGoalTxt').textContent = n >= goal ? `¡Objetivo cumplido! ${n - goal} por encima.` :
+      `${pct} % del objetivo. Faltan ${goal - n}` + (days > 0 ? `, unas ${Math.ceil((goal - n) / days)} al día durante ${days} días.` : '.');
+    const req = ME.config.requiredChecks || [];
+    const awsOk = (p) => p.awsReady || (p.awsCheck && req.every(k => p.awsCheck.results?.[k] === true));
+    const day = 864e5, last24 = people.filter(p => p.createdAt && Date.now() - new Date(p.createdAt) < day).length;
+    const kpi = (label, val, sub) => el('div', { class: 'st-kpi' }, el('p', { class: 'eyebrow', text: label }), el('p', { class: 'st-num', text: String(val) }), el('p', { class: 'small muted', text: sub }));
+    const of = (k) => n ? `${Math.round(k / n * 100)} % de los inscritos` : '–';
+    const inMeetup = people.filter(p => p.meetupVerified).length, inTeam = people.filter(p => p.teamId).length, aws = people.filter(awsOk).length;
+    $('#stKpis').replaceChildren(kpi('Últimas 24 h', `+${last24}`, 'inscripciones nuevas'), kpi('En Meetup', inMeetup, of(inMeetup)),
+      kpi('En equipo', inTeam, `${teams.length} equipos`), kpi('AWS listo', aws, of(aws)), kpi('Entregas', teams.filter(t => t.submission).length, `de ${teams.length} equipos`));
+    const times = people.map(p => Date.parse(p.createdAt)).filter(Number.isFinite).sort((a, b) => a - b);
+    lineChart($('#stLine'), times, goal); pieChart($('#stPie'), people); hoursChart($('#stHours'), times);
+  }
+  let stRaf; window.addEventListener('resize', () => { if (!STATS_DATA || $('#admin').classList.contains('hidden')) return; cancelAnimationFrame(stRaf); stRaf = requestAnimationFrame(() => renderStats(...STATS_DATA)); });
+  $$('#adminTabs button').forEach(b => b.addEventListener('click', () => { if (b.dataset.a === 'stats' && STATS_DATA) requestAnimationFrame(() => renderStats(...STATS_DATA)); }));
+
+  // ---------- cuenta atrás del hackathon ----------
+  const TIMER_MODE = new URLSearchParams(location.search).has('timer');
+  const tmEnd = (c) => c.timerStart ? new Date(new Date(c.timerStart).getTime() + (Number(c.timerMinutes) || 120) * 6e4) : null;
+  function renderTimerBox() {
+    const c = ME.config, end = tmEnd(c), b = $('#tmStart');
+    delete b.dataset.armed;
+    if (!end) { $('#tmState').textContent = 'Cuenta atrás de 2 horas. Al empezarla, el cierre de entregas pasa a ser dentro de 2 horas.'; b.textContent = 'Empezar cuenta atrás →'; }
+    else if (end > Date.now()) { $('#tmState').textContent = `En marcha desde ${fmt(c.timerStart)}. Termina a las ${end.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}.`; b.textContent = 'Reiniciar desde 2:00:00'; }
+    else { $('#tmState').textContent = `Terminó a las ${end.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' })}.`; b.textContent = 'Empezar otra vez →'; }
+  }
+  $('#tmStart').onclick = () => {
+    const b = $('#tmStart');
+    if (tmEnd(ME.config) && !b.dataset.armed) { b.dataset.armed = '1'; b.textContent = '¿Seguro? Pulsa otra vez'; return; }
+    const w = window.open('', '_blank');
+    busy(b, async () => {
+      try {
+        const now = new Date(), mins = Number(ME.config.timerMinutes) || 120;
+        const r = await api('PUT', '/admin/config', { timerStart: now.toISOString(), submissionDeadline: new Date(now.getTime() + mins * 6e4).toISOString() });
+        ME.config = r.config; renderTimerBox(); say('#tmMsg', 'Cuenta atrás en marcha. El cierre de entregas se ha movido al final.', true);
+        if (w) w.location = './?timer'; else location.href = './?timer';
+      } catch (e) { if (w) w.close(); say('#tmMsg', e.message); renderTimerBox(); }
+    });
+  };
+  function openTimerView() {
+    document.body.classList.add('tm-mode');
+    const v = el('div', { class: 'tm', id: 'tmView' });
+    v.innerHTML = `<div class="tm-top"><p class="tm-brand">SEA × AWS Student Builder Group · Hackathon</p><p class="tm-now" id="tmNow"></p></div>
+      <div class="tm-mid"><p class="tm-label" id="tmLabel">Tiempo restante</p><p class="tm-clock" id="tmClock">2:00:00</p>
+      <div class="tm-bar"><span id="tmBar"></span></div></div>
+      <div class="tm-stats" id="tmStats"></div>
+      <div class="tm-feed"><p class="tm-label">Últimas entregas</p><ul id="tmFeed"></ul></div>`;
+    document.body.append(v);
+    let teams = [], people = [];
+    const tick = () => {
+      const c = ME.config, end = tmEnd(c), mins = Number(c.timerMinutes) || 120;
+      $('#tmNow').textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' });
+      if (!end) { $('#tmClock').textContent = `${Math.floor(mins / 60)}:${String(mins % 60).padStart(2, '0')}:00`; $('#tmLabel').textContent = 'Aún no ha empezado'; $('#tmBar').style.width = '0%'; return; }
+      const ms = end - Date.now();
+      if (ms <= 0) { $('#tmClock').textContent = '¡Tiempo!'; $('#tmLabel').textContent = 'Se acabó. A presentar.'; $('#tmBar').style.width = '100%'; v.classList.add('tm-done'); return; }
+      v.classList.remove('tm-done'); v.classList.toggle('tm-last', ms < 15 * 6e4);
+      const h = Math.floor(ms / 36e5), m = Math.floor(ms / 6e4) % 60, sec = Math.floor(ms / 1e3) % 60;
+      $('#tmClock').textContent = `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+      $('#tmLabel').textContent = ms < 15 * 6e4 ? 'Últimos minutos: entregad ya' : 'Tiempo restante';
+      $('#tmBar').style.width = Math.min(100, (1 - ms / (mins * 6e4)) * 100) + '%';
+    };
+    const stats = () => {
+      const subs = teams.filter(t => t.submission).sort((a, b) => String(b.submission.submittedAt).localeCompare(String(a.submission.submittedAt)));
+      const stat = (n, l) => el('div', { class: 'tm-stat' }, el('p', { class: 'tm-n', text: String(n) }), el('p', { class: 'tm-l', text: l }));
+      $('#tmStats').replaceChildren(stat(`${subs.length}/${teams.length}`, 'equipos han entregado'), stat(teams.length ? Math.round(subs.length / teams.length * 100) + ' %' : '–', 'del total'),
+        stat(people.filter(p => p.teamId).length, 'personas en equipo'), stat(people.length, 'inscritos'));
+      $('#tmFeed').replaceChildren(...(subs.length ? subs.slice(0, 6).map(t => el('li', {}, el('b', { text: t.name }), el('span', { text: t.submission.module || '' }),
+        el('span', { class: 'tm-t', text: new Date(t.submission.submittedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }) })))
+        : [el('li', { class: 'tm-empty', text: 'Todavía no ha entregado nadie.' })]));
+    };
+    const refresh = async () => {
+      try {
+        const [cfg, t, p] = await Promise.all([fetch('/api/public/config').then(r => r.json()), api('GET', '/admin/teams'), api('GET', '/admin/participants')]);
+        ME.config = cfg.config || ME.config; teams = t.teams; people = p.participants; stats(); tick();
+      } catch {}
+    };
+    tick(); setInterval(tick, 1000); refresh(); setInterval(refresh, 20000);
+  }
+
+  async function loadAdmin() {
+    fillCfg(); fitAdmin();
+    // cada lista por separado: si una falla, el resto del panel se pinta igual
+    const got = await Promise.allSettled([api('GET', '/admin/participants'), api('GET', '/admin/teams'), api('GET', '/admin/admins')]);
+    const fails = got.filter(r => r.status === 'rejected').map(r => r.reason?.message || 'error');
+    if (fails.length) console.warn('Panel: no se pudo cargar', fails);
+    const participants = got[0].value?.participants || [], teams = got[1].value?.teams || [], admins = got[2].value?.admins || [];
+    if (got[2].status === 'rejected') say('#adminMsg', 'No se pudo cargar la lista de admins: ' + fails.join(' · '));
+    PEOPLE = participants.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    TNAME = Object.fromEntries(teams.map(t => [t.id, t.name]));
+    const req = ME.config.requiredChecks || [];
+    AWSOK = (p) => p.awsCheck && req.every(k => p.awsCheck.results?.[k] === true);
+    const today = new Date().toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' });
+    const newToday = participants.filter(p => p.createdAt && new Date(p.createdAt).toLocaleDateString('es-ES', { timeZone: 'Europe/Madrid' }) === today).length;
+    $('#peopleSum').textContent = `${participants.length} registrados (${newToday} hoy) · ${participants.filter(p => p.meetupVerified).length} en Meetup · ${participants.filter(p => AWSOK(p) || p.awsReady).length} con AWS listo · ${participants.filter(p => p.teamId).length} en equipo`;
+    renderPeople();
+    const link = (u) => u ? el('a', { href: u, target: '_blank', rel: 'noopener', text: 'abrir' }) : '–';
+    const subs = teams.filter(t => t.submission);
+    $('#teamsSum').textContent = `${teams.length} equipos · ${subs.length} entregas`;
+    teams.sort((a, b) => String(b.submission?.submittedAt || '').localeCompare(String(a.submission?.submittedAt || '')));
+    table($('#teamsTbl'), ['Equipo', 'Personas', 'Módulo', 'Repo', 'Demo', 'Vídeo', 'Slides', 'Servicios', 'Qué han hecho', 'Entregado'],
+      teams.map(t => { const s = t.submission || {};
+        const d = el('span', { text: (s.description || '').slice(0, 80) + ((s.description || '').length > 80 ? '…' : ''), title: s.description || '' });
+        return [t.name, t.members.map(m => m.name || m.email).join(', '), s.module || '', link(s.repoUrl), link(s.demoUrl), link(s.videoUrl), link(s.slidesUrl),
+          s.awsServices || '', d, s.submittedAt ? fmt(s.submittedAt) : '–']; }));
+    renderAdmins(admins);
+    renderStats(participants, teams); renderTimerBox();
+    fillCfg();
+    const yes = participants.filter(p => p.meetupVerified).length;
+    $('#meetupSum').textContent = `${yes} de ${participants.length} personas registradas están en la lista de Meetup.`;
+    table($('#meetupTbl'), ['Nombre', 'Email', 'Uni', 'En Meetup'], PEOPLE.map(p => [p.name, p.email, p.university, p.meetupVerified ? 'Sí' : 'No']));
+    fitAdmin();
+  }
+  function fillCfg() {
+    if (document.activeElement === $('#cfgIn')) return;
+    const keys = ['eventName', 'eventStart', 'location', 'submissionDeadline', 'announcement', 'goal', 'timerMinutes', 'timerStart', 'agenda', 'speakers', 'links', 'participantRegion', 'requiredChecks'];
+    const c = ME.config || {}, out = {};
+    keys.forEach(k => { if (k in c) out[k] = c[k]; });
+    Object.keys(c).forEach(k => { if (!(k in out)) out[k] = c[k]; });
+    $('#cfgIn').value = JSON.stringify(out, null, 2);
+  }
+  // panel de organización: siempre cabe en una pantalla (lo largo hace scroll dentro del bloque)
+  function fitAdmin() {
+    if ($('#admin').classList.contains('hidden')) return;
+    requestAnimationFrame(() => {
+      const U = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--u')) || 80;
+      document.querySelectorAll('#admin .adm-panel').forEach(pn => {
+        if (pn.classList.contains('hidden')) return;
+        const top = pn.getBoundingClientRect().top + window.scrollY;
+        const h = Math.max(4 * U, Math.floor((window.innerHeight - top - 8) / U) * U);
+        pn.style.height = h + 'px';
+      });
+    });
+  }
+  window.addEventListener('resize', fitAdmin);
+  $('#csvBtn').onclick = () => {
+    const cols = ['createdAt', 'name', 'email', 'university', 'teamId', 'meetupVerified', 'builderCenterUrl', 'awsReady', 'aiReady'];
+    const q = (v) => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const lines = [cols.concat('awsAccount', 'awsCheckAt', 'awsResults').join(',')].concat(PEOPLE.map(p =>
+      cols.map(k => q(p[k])).concat(q(p.awsCheck?.accountId), q(p.awsCheck?.at), q(JSON.stringify(p.awsCheck?.results || {}))).join(',')));
+    const a = el('a', { href: URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' })), download: 'participantes.csv' });
+    a.click();
+  };
+  $('#csvFile').onchange = async (e) => { const f = e.target.files[0]; if (f) $('#csvIn').value = await f.text(); };
+  $('#importBtn').onclick = () => busy($('#importBtn'), async () => {
+    try { const r = await api('POST', '/admin/allowlist', { csv: $('#csvIn').value }); say('#importMsg', `${r.names} nombres y ${r.emails} emails importados. ${r.matchedRegistered} personas registradas marcadas como Meetup ✓.`, true); loadAdmin(); }
+    catch (err) { say('#importMsg', err.message); }
+  });
+  $('#cfgBtn').onclick = () => busy($('#cfgBtn'), async () => {
+    try { const r = await api('PUT', '/admin/config', JSON.parse($('#cfgIn').value)); ME.config = r.config; say('#cfgMsg', 'Guardado', true); renderDash(); }
+    catch (err) { say('#cfgMsg', err.message); }
+  });
+
+  // ---------- arranque ----------
+  (async () => {
+    try { const r = await fetch('/api/public/config').then(r => r.json()); AUTH = r.auth;
+      if (pwMode()) {
+        $('#pwBox').classList.remove('hidden'); $('#sPwBox').classList.remove('hidden');
+        $('#lPass').required = true; $('#sPass').required = true;
+        $('#loginBtn').textContent = 'Entrar';
+        $('#authHint').textContent = 'Entra con tu email y tu contraseña.';
+      } else { $('#authHint').textContent = 'Entra con tu email. Te mandamos un código, sin contraseñas.'; }
+    }
+    catch { $('#authHint').textContent = 'No se pudo conectar con la plataforma. Prueba a recargar en un momento.'; show('#auth'); return; }
+    if (await idToken()) load(); else showAuth();
+  })();
+})();
+</script>
+</body>
+</html>
