@@ -459,7 +459,6 @@
       <nav class="links" aria-label="Principal">
         <a href="../">Inicio</a>
         <a href="../reto.html">El reto</a>
-        <a class="btn o sm" id="navJoin" href="#registro">Apúntate →</a>
         <button class="btn ghost sm hidden" id="adminToggle" type="button">Organización</button>
         <button class="btn d sm hidden" id="logout" type="button">Salir</button>
       </nav>
@@ -868,7 +867,7 @@
     });
   })();
   // ---------- vistas ----------
-  function show(id) { ['#auth', '#dash', '#admin'].forEach(s => $(s).classList.toggle('hidden', s !== id)); $('#navJoin').classList.toggle('hidden', id !== '#auth'); fitAuth(); placeActions(); }
+  function show(id) { ['#auth', '#dash', '#admin'].forEach(s => $(s).classList.toggle('hidden', s !== id));  fitAuth(); placeActions(); }
   // Móvil: "Organización" y "Salir" salen del header y van como botones bajo el cierre de entregas (o bajo el título del panel admin)
   function placeActions() {
     const btns = [$('#adminToggle'), $('#logout')]; if (!btns[0] || !btns[1]) return;
