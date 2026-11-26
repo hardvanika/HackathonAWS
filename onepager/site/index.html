@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hackathon como SEA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Jueves 3 de diciembre de 2026, 18:00, UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: copia de la web del SBG UC3M. Retícula de celdas --u (80 px escritorio, 64 tablet, 48 móvil); columna de 16/12/N celdas;
+     todos los bloques miden celdas enteras (el script redondea alturas y alinea la retícula con la columna). Un solo look claro. */
+  :root {
+    --ink: #161D26; --paper: #FFFFFF; --grid: #DEDEE3; --orange: #FF9900; --blue: #42B4FF; --line: rgba(22,29,38,.35); --muted: #374151; --muted-dk: #C4CAD4;
+    --mono: "Noto Sans Mono", ui-monospace, Menlo, monospace; --sans: "Noto Sans", system-ui, -apple-system, sans-serif;
+    --u: 80px; --pad: 56px;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: calc(var(--u) + env(safe-area-inset-top, 0px)); }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 16px; line-height: 1.55; }
+  a { color: var(--ink); }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  p { margin: 0; }
+  h1, h2, h3 { font-family: var(--mono); font-weight: 400; margin: 0; text-wrap: balance; }
+  body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 60; background: var(--paper); }
+
+  .page {
+    background-color: var(--paper);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: var(--u) var(--u); background-position: var(--gx, 0px) 0;
+    overflow-x: clip; padding-top: var(--u); padding-bottom: calc(2 * var(--u));
+  }
+  .col { position: relative; width: calc(16 * var(--u)); max-width: calc(100% - 32px); margin-left: var(--cx, auto); margin-right: auto; }
+  .blk { outline: 1px solid var(--line); outline-offset: -1px; background: var(--paper); }
+  .dark { background: var(--ink); color: var(--paper); outline-color: var(--ink); }
+  .o-bg { background: var(--orange); }
+  .in { padding: 32px var(--pad); display: flex; flex-direction: column; justify-content: center; gap: 12px; min-width: 0; }
+  .stack { display: flex; flex-direction: column; }
+  .stack > :last-child { flex: 1 1 auto; }
+  .g { display: grid; }
+  .deco { position: absolute; pointer-events: none; }
+  .measuring .snap { align-self: flex-start !important; flex: none !important; }
+
+  .eyebrow { font-family: var(--mono); font-size: 14px; }
+  .eyebrow.o { color: var(--orange); }
+  h1 { font-size: clamp(34px, 3.8vw, 56px); line-height: 1.1; letter-spacing: -.01em; }
+  h2 { font-size: clamp(24px, 2.4vw, 34px); line-height: 1.15; }
+  h3 { font-size: 22px; line-height: 1.2; }
+  .lead { font-size: 18px; max-width: 34em; }
+  .small { font-size: 15px; line-height: 1.45; }
+  .big { font-family: var(--mono); font-size: 56px; line-height: 1; white-space: nowrap; }
+  .num { font-family: var(--mono); font-size: 40px; line-height: 1; color: var(--orange); flex: 0 0 auto; }
+  .row { flex-direction: row; align-items: center; justify-content: flex-start; gap: 24px; }
+  .row > div { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .dark .muted { color: var(--muted-dk); }
+
+  .btn { display: inline-block; align-self: flex-start; text-decoration: none; padding: 16px 28px; font-family: var(--mono); font-size: 16px; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn.sm { padding: 12px 20px; font-size: 15px; }
+  .btn.o { background: var(--orange); color: var(--ink); font-weight: 600; }
+  .btn.d { background: var(--ink); color: var(--paper); }
+  .btn.o:hover, .btn.o:focus-visible { transform: translate(-5px,-5px); box-shadow: 5px 5px 0 var(--paper), 5px 5px 0 1px var(--ink); }
+  .btn.d:hover, .btn.d:focus-visible { transform: translate(-5px,-5px); box-shadow: 5px 5px 0 var(--blue); }
+  .btn:active { transform: none; box-shadow: none; }
+  @media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+  .ctas { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; }
+  .tbc { display: inline-block; align-self: flex-start; font-family: var(--mono); font-size: 13px; border: 1px dashed currentColor; padding: 6px 12px; }
+
+  /* barra superior, sin logos */
+  .nav { position: fixed; left: 0; right: 0; top: env(safe-area-inset-top, 0px); z-index: 50; background: var(--paper); box-shadow: inset 0 -1px 0 var(--line); }
+  .nav .col { display: flex; align-items: center; justify-content: space-between; height: var(--u); gap: 16px; }
+  .nav .brand { font-family: var(--mono); font-size: 14px; line-height: 1.35; text-decoration: none; }
+  .nav .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 15px; }
+  .nav .links a:not(.btn) { text-decoration: none; }
+  .nav .links a[aria-current] { text-decoration: underline; text-underline-offset: 6px; }
+
+  section, header { position: relative; padding-top: calc(2 * var(--u)); }
+  header { padding-top: var(--u); }
+  .card { min-height: calc(4 * var(--u)); }
+  .card { justify-content: flex-start !important; }
+  .card p:not(.eyebrow) { flex-grow: 1; }
+  .card svg { width: 32px; height: 32px; flex: 0 0 auto; }
+  .card .btn { margin-top: 24px; }
+
+  /* 16 celdas (escritorio) */
+  .c16 .hq { grid-template-columns: repeat(2, calc(8 * var(--u))); }
+  .c16 .stats { grid-template-columns: repeat(2, calc(4 * var(--u))); }
+  .c16 .three { grid-template-columns: calc(5 * var(--u)) calc(6 * var(--u)) calc(5 * var(--u)); }
+  .c16 .two { grid-template-columns: repeat(2, calc(8 * var(--u))); }
+  .deco.uni { display: grid; place-items: center; color: var(--ink); font-family: var(--mono); font-weight: 600; font-size: clamp(14px, 1.3vw, 20px); letter-spacing: .04em; }
+  ol.tl { list-style: none; margin: 0; padding: 0; }
+  .tl .t { font-family: var(--mono); font-size: 28px; line-height: 1; flex: 0 0 120px; }
+  .tl .t.tbd { font-size: 13px; line-height: 1.3; align-self: center; }
+  .cs .tl .t { flex-basis: 84px; font-size: 22px; }
+  .cs .tl .t.tbd { font-size: 12px; }
+  .sp-empty { grid-column: 1 / -1; }
+  .sp a { align-self: flex-start; }
+  /* 12 celdas (tablet) */
+  .c12 { --pad: 40px; }
+  .c12 .hq, .c12 .two { grid-template-columns: calc(12 * var(--u)); }
+  .c12 .stats { grid-template-columns: repeat(2, calc(6 * var(--u))); }
+  .c12 .three { grid-template-columns: repeat(3, calc(4 * var(--u))); }
+  /* móvil */
+  .cs { --pad: 20px; }
+  .cs .hq, .cs .stats, .cs .three, .cs .two { grid-template-columns: 1fr; }
+  .cs .nav .links a:not(.btn) { display: none; }
+  .cs .nav .brand { font-size: 11px; }
+  .cs .card { min-height: 0; }
+  .cs .lead { font-size: 16px; }
+  .cs .big { font-size: 40px; }
+  .cs .num { font-size: 30px; }
+  .cs .row { gap: 16px; }
+  .cs .btn { padding: 12px 18px; font-size: 15px; }
+  .page:not(.wide) .deco { display: none; }
+  .mono { font-family: var(--mono); }
+  .c16 .foot { grid-template-columns: calc(7 * var(--u)) calc(9 * var(--u)); }
+  .c12 .foot { grid-template-columns: calc(12 * var(--u)); }
+  .cs .foot { grid-template-columns: 1fr; }
+  .foot > .blk { min-height: calc(2 * var(--u)); }
+  .cs .ev .quote { --pad: 20px; }
+
+  /* bloque "evento" (como el de la web del SBG) */
+  .ev { display: grid; }
+  .ev .title { text-align: center; align-items: center; }
+  .ev .title h2 { font-size: clamp(30px, 3.6vw, 56px); }
+  .ev .quote { align-self: start; }
+  .ev .quote { --pad: 40px; }
+  .ev .quote h3 { font-size: clamp(22px, 2vw, 28px); line-height: 1.15; overflow-wrap: anywhere; }
+  .ev .quote p { font-size: 20px; line-height: 1.5; }
+  .tag { align-self: flex-start; background: var(--orange); font-family: var(--mono); font-size: 12px; font-weight: 600; letter-spacing: .06em; padding: 6px 12px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 16px; }
+  .meta span { display: inline-flex; align-items: center; gap: 8px; }
+  .meta svg { width: 18px; height: 18px; flex: 0 0 auto; }
+  .c16 .ev { grid-template-columns: repeat(16, var(--u)); }
+  .c16 .ev .title { grid-column: 5 / 13; grid-row: 1; }
+  .c16 .ev .quote { grid-column: 2 / 6; grid-row: 2; }
+  .c16 .ev .main { grid-column: 6 / 16; grid-row: 2; }
+  .c12 .ev { grid-template-columns: repeat(12, var(--u)); }
+  .c12 .ev .title { grid-column: 3 / 11; grid-row: 1; }
+  .c12 .ev .quote { grid-column: 1 / 5; grid-row: 2; }
+  .c12 .ev .main { grid-column: 5 / 13; grid-row: 2; }
+  .cs .ev { grid-template-columns: 1fr; }
+
+  /* ===== Tema póster (24 nov): fondo blanco, detalles en rojo SEA, bloques blancos y negros, tipografía AWS (Noto Sans / Noto Sans Mono) ===== */
+  :root {
+    --red: #FF462E; --ink: #141414; --navy: #0B1430; --white: #FFFFFF;
+    --paper: var(--white); --grid: #E4E4E7; --orange: var(--red); --blue: var(--navy);
+    --line: rgba(20,20,20,.35); --muted: #3A3A3F; --muted-dk: rgba(255,255,255,.78);
+    --mono: "Noto Sans Mono", ui-monospace, Menlo, monospace; --sans: "Noto Sans", system-ui, -apple-system, sans-serif; --display: "Noto Sans Mono", ui-monospace, Menlo, monospace;
+  }
+  body { font-weight: 400; }
+  ::selection { background: var(--red); color: var(--ink); }
+  :focus-visible { outline-color: var(--red); }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.01em; }
+  h1, h2 { color: var(--ink); }
+  .dark h1, .dark h2 { color: var(--white); }
+  h3 { font-weight: 500; }
+  .eyebrow { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 13px; }
+  .dark { background: var(--ink); color: var(--white); outline-color: var(--ink); }
+  .navy { background: var(--white); color: var(--ink); outline-color: var(--line); }
+  .o-bg { background: var(--red); color: var(--ink); outline-color: var(--ink); }
+  .o-bg h2 { color: var(--ink); }
+  .eyebrow.o { color: var(--red); }
+  .o-bg .eyebrow { color: var(--ink); }
+  .num { font-family: var(--display); font-weight: 700; color: var(--red); }
+  .dark .num, .navy .num { color: var(--red); }
+  .btn { font-weight: 700; }
+  .btn.o { background: var(--red); color: var(--ink); }
+  .btn.o:hover, .btn.o:focus-visible { box-shadow: 5px 5px 0 var(--ink); }
+  .btn.d { background: var(--ink); color: var(--white); }
+  .btn.d:hover, .btn.d:focus-visible { box-shadow: 5px 5px 0 var(--red); }
+  .dark .btn.o, .navy .btn.o { box-shadow: none; }
+  .dark .btn.o:hover, .navy .btn.o:hover, .dark .btn.o:focus-visible, .navy .btn.o:focus-visible { box-shadow: 5px 5px 0 var(--white); }
+  .o-bg .btn.o { background: var(--ink); color: var(--white); }
+  .pblk { background: var(--white); }
+  .pblk .q { color: var(--ink) !important; }
+  .pblk .eyebrow { color: var(--red); }
+  .mega .dot { color: var(--red); }
+  .uni .ven, .footL .ven { color: var(--ink); }
+  .uni .ven { color: var(--red); }
+  .tag { background: var(--ink); color: var(--red); }
+  .nav { background: var(--white); box-shadow: inset 0 -2px 0 var(--ink); }
+  .nav .btn.o { background: var(--red); }
+  .nav .brand { font-weight: 700; }
+  .nav .links { font-weight: 700; }
+
+  /* hero tipo póster */
+  .hero-g { display: grid; }
+  .c16 .hero-g { grid-template-columns: calc(11 * var(--u)) calc(5 * var(--u)); }
+  .c12 .hero-g { grid-template-columns: calc(7 * var(--u)) calc(5 * var(--u)); }
+  .cs .hero-g { grid-template-columns: 1fr; }
+  .hero-g .band, .hero-g .uni { grid-column: 1 / -1; }
+  .pblk { position: relative; gap: 20px !important; justify-content: flex-start !important; padding-top: 40px; padding-bottom: 40px; }
+  .pblk .q { font-family: var(--display); font-weight: 700; color: var(--white); font-size: clamp(22px, 2.4vw, 34px); line-height: 1.2; max-width: 15em; }
+  .mega { color: var(--ink) !important; font-weight: 600; font-size: clamp(64px, 11.2vw, 172px); line-height: .86; letter-spacing: -.02em; margin-top: 8px; }
+  .cs .mega { font-size: clamp(52px, 19vw, 104px); }
+  .c12 .mega { font-size: clamp(56px, 11vw, 100px); }
+  .seadef { font-family: var(--mono); font-weight: 700; font-size: 14px; }
+  .star { position: absolute; top: 28px; right: 28px; width: clamp(110px, 11vw, 160px); height: auto; transform: rotate(-6deg); transition: transform .3s ease; }
+  .star:hover { transform: rotate(10deg) scale(1.06); }
+  .cs .star { width: 92px; top: 16px; right: 12px; }
+  @media (prefers-reduced-motion: reduce) { .star { transition: none; } }
+  .when { font-family: var(--display); font-weight: 700; font-size: clamp(36px, 3.6vw, 52px); line-height: 1; color: var(--white); font-variant-numeric: oldstyle-nums; }
+  .where { font-family: var(--mono); font-weight: 700; font-size: 15px; color: var(--red); }
+  .perks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .perks li { display: flex; gap: 10px; align-items: baseline; font-size: 16px; }
+  .perks li::before { content: ""; flex: 0 0 8px; height: 8px; background: var(--red); transform: translateY(-2px); }
+  .perks b { font-weight: 700; }
+  .band { display: flex; align-items: center; justify-content: center; text-align: center; padding: 22px 20px; }
+  .band p { font-family: var(--display); font-weight: 700; color: var(--red); font-size: clamp(22px, 3.8vw, 56px); line-height: 1; letter-spacing: -.01em; }
+  .uni { flex-direction: row !important; flex-wrap: wrap; align-items: center !important; justify-content: space-between !important; gap: 16px 32px !important; }
+  .ven { font-family: var(--display); font-weight: 700; color: var(--white); font-size: clamp(24px, 2.6vw, 38px); line-height: 1.1; }
+  .unis { font-family: var(--mono); font-weight: 700; font-size: clamp(16px, 1.5vw, 20px); letter-spacing: .02em; }
+  .uni .ctas { margin-top: 0; }
+  .arrow { width: clamp(56px, 6vw, 88px); height: auto; flex: 0 0 auto; }
+  .cs .pblk { padding-top: 116px; }
+  .cs .star { top: 14px; right: 14px; }
+  .cs .band p { font-size: clamp(18px, 5.6vw, 26px); white-space: nowrap; }
+  .cs .uni .ven, .cs .footL .ven { font-size: clamp(18px, 5.4vw, 24px); }
+  .cs .nav .btn { white-space: nowrap; }
+  .deco.uni { color: var(--white); font-weight: 700; }
+  .deco.uni[aria-label=UC3M], .deco.uni[aria-label=UCJC] { color: var(--ink); }
+  .tl .t { font-weight: 700; }
+  /* hero estilo "Próximo evento" de la web del SBG */
+  .hero-ev .title { gap: 8px !important; }
+  .hero-k { font-size: 15px; color: var(--white); }
+  .hero-t { color: var(--white) !important; font-weight: 400; font-size: clamp(30px, 3.6vw, 56px); line-height: 1.1; letter-spacing: 0; }
+  .hero-ev .quote .hero-q { font-weight: 500; font-size: clamp(36px, 3.4vw, 52px); line-height: 1; }
+  .hero-ev .meta a { color: var(--ink); text-decoration-color: var(--red); text-underline-offset: 4px; }
+  .hero-ev .tag { background: var(--red); color: var(--ink); text-transform: uppercase; }
+  .hero-ev .dot { color: var(--red); }
+  .hero-ev .quote h3 { font-weight: 500; }
+  .hero-ev .quote .seadef { font-size: 14px; line-height: 1.4; }
+  .hero-ev .main h2 { font-weight: 400; font-size: clamp(26px, 2.6vw, 38px); }
+  .hero-ev .main p:not(.tag) { font-size: 18px; line-height: 1.55; }
+  .hero-ev .meta svg { color: var(--red); }
+  /* nada de rojo sobre negro (Ivan 24 nov) */
+  .dark .eyebrow, .dark .eyebrow.o, .dark .num, .navy.dark .num, .dark .where, .tag { color: var(--white); }
+  .hero-ev .tag { color: var(--ink); }
+  .nav .brand { display: inline-flex; align-items: center; gap: 12px; }
+  .nav .bstar { width: 56px; height: 56px; flex: 0 0 auto; transform: rotate(-6deg); transition: transform .3s ease; }
+  .nav .brand:hover .bstar { transform: rotate(10deg) scale(1.06); }
+  .cs .nav .bstar { width: 44px; height: 44px; }
+  .cs .nav .brand > span { display: none; }
+  @media (prefers-reduced-motion: reduce) { .nav .bstar { transition: none; } }
+  /* reto: intro como la portada */
+  .reto-ev .quote .hero-q { color: var(--ink); font-size: clamp(28px, 2.4vw, 38px); }
+  .reto-ev .quote p { color: var(--ink); }
+  .reto-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px 32px; margin-top: 8px; }
+  .cs .reto-facts { grid-template-columns: 1fr; }
+  .reto-facts > div { display: flex; gap: 16px; align-items: flex-start; }
+  .reto-facts > div > div { display: flex; flex-direction: column; gap: 4px; }
+  .reto-facts .num { font-size: 32px; }
+  .reto-facts h3 { font-size: 18px; }
+  /* módulos: seis cuadrados en línea que se abren al pasar el ratón */
+  .mods { list-style: none; margin: 0; padding: 0; display: flex; height: calc(3 * var(--u)); }
+  .mod { position: relative; flex: 1 1 0; min-width: 0; overflow: hidden; background: var(--white); outline: 1px solid var(--line); outline-offset: -1px; padding: 24px; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; cursor: default; transition: flex-grow .35s ease, background .2s ease; }
+  .mod .mod-l { position: absolute; top: 16px; left: 24px; font-family: var(--mono); font-weight: 700; font-size: 56px; line-height: 1; color: var(--red); transition: color .2s ease; }
+  .mod h3 { font-size: 18px; font-weight: 700; }
+  .mod .small { opacity: 0; max-height: 0; transition: opacity .2s ease; }
+  .mod:hover, .mod:focus-visible, .mod:focus-within { flex-grow: 2.6; background: var(--red); outline-color: var(--ink); z-index: 1; }
+  .mod:hover .mod-l, .mod:focus-visible .mod-l { color: var(--ink); }
+  .mod:hover .small, .mod:focus-visible .small { opacity: 1; max-height: 6em; transition-delay: .12s; }
+  .c12 .mods, .cs .mods { flex-wrap: wrap; height: auto; }
+  .c12 .mod { flex: 0 0 33.333%; min-height: calc(3 * var(--u)); }
+  .cs .mod { flex: 0 0 50%; min-height: calc(3 * var(--u)); padding: 16px; }
+  .c12 .mod .small, .cs .mod .small { opacity: 1; max-height: none; }
+  .c12 .mod .mod-l, .cs .mod .mod-l { position: static; font-size: 36px; margin-bottom: auto; }
+  .c12 .mod, .cs .mod { justify-content: flex-start; }
+  @media (hover: none) { .mod .mod-l { position: static; margin-bottom: auto; } .mod .small { opacity: 1; max-height: none; } .mods { flex-wrap: wrap; height: auto; } .mod { flex: 0 0 50%; min-height: calc(3 * var(--u)); } }
+  @media (prefers-reduced-motion: reduce) { .mod, .mod .small { transition: none; } }
+  /* portada en móvil: cabecera negra + evento + ¿Qué es SEA? */
+  .nav .brand > .mtitle, .cs .nav .brand > .mtitle { display: inline; font-size: 16px; white-space: nowrap; }
+  .cs.home .nav { background: var(--ink); box-shadow: none; }
+  .cs.home .nav .brand { color: var(--white); }
+  .cs.home .nav .brand > .mtitle { display: inline; font-size: 16px; letter-spacing: .01em; white-space: nowrap; }
+  .cs.home .nav .bstar polygon { fill: var(--white); }
+  .cs.home .nav .bstar g { fill: var(--ink); }
+  .cs.home .nav .links { display: none; }
+  .cs.home header, .cs.home #sea { padding-top: 0; }
+  .cs.home .hero-ev .title, .cs.home .hero-ev .quote, .cs.home #sea .live, .cs.home > footer, .cs.home .deco { display: none; }
+  .cs.home .hero-ev .main { min-height: 0 !important; padding-top: 28px; padding-bottom: 28px; }
+  .cs.home #sea .dark { min-height: 0 !important; padding-top: 28px; padding-bottom: 28px; }
+  .cs.home { padding-bottom: 0; }
+  /* módulos: seis circulitos sobre la retícula; al pasar el ratón se abre la explicación debajo */
+  .trk { padding: 0 calc(2 * var(--u)); }
+  .c12 .trk { padding: 0; }
+  .cs .trk { padding: 0; }
+  .trk-row { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, 1fr); height: calc(2 * var(--u)); align-items: center; justify-items: center; }
+  .cs .trk-row { height: var(--u); }
+  .trk-b { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--ink); background: var(--white); color: var(--ink); font-family: var(--mono); font-weight: 700; font-size: 22px; line-height: 1; cursor: pointer; padding: 0; transition: background .2s ease, transform .2s ease; }
+  .cs .trk-b { width: 44px; height: 44px; font-size: 18px; }
+  .trk-b:hover, .trk-b[aria-expanded="true"] { background: var(--red); transform: scale(1.08); }
+  .trk-p { display: grid; min-height: calc(2 * var(--u)); padding: 24px 32px; align-items: center; }
+  .trk-p > * { grid-area: 1 / 1; transition: opacity .2s ease, transform .2s ease; }
+  .trk-hint { font-family: var(--mono); font-size: 14px; color: var(--muted); }
+  .trk-d { display: flex; gap: 20px; align-items: center; opacity: 0; transform: translateY(-6px); visibility: hidden; }
+  .trk-d .num { font-size: 40px; color: var(--red); }
+  .trk-d h3 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .trk[data-a] .trk-hint { opacity: 0; }
+  .trk[data-a="0"] .trk-d[data-i="0"], .trk[data-a="1"] .trk-d[data-i="1"], .trk[data-a="2"] .trk-d[data-i="2"], .trk[data-a="3"] .trk-d[data-i="3"], .trk[data-a="4"] .trk-d[data-i="4"], .trk[data-a="5"] .trk-d[data-i="5"] { opacity: 1; transform: none; visibility: visible; }
+  .cs .trk-p { padding: 20px; }
+  @media (prefers-reduced-motion: reduce) { .trk-b, .trk-p > * { transition: none; } }
+  /* "Como SEA, pero ven." en una sola línea */
+  .footL .ven { white-space: nowrap; font-size: clamp(20px, 2vw, 30px); }
+  .cs .footL .ven { font-size: clamp(16px, 5vw, 22px); }
+  /* "Inscríbete antes del jueves": checklist tipo entrada (blanco con detalles rojos) */
+  .ticket { display: grid; grid-template-columns: minmax(0, 1fr) calc(4 * var(--u)); margin: 0 var(--u); }
+  .c12 .ticket { margin: 0; }
+  .cs .ticket { margin: 0; grid-template-columns: 1fr; }
+  .ticket mark { background: var(--red); color: var(--ink); padding: 0 .12em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .tk-list { list-style: none; margin: 8px 0 0; padding: 0; }
+  .tk-list li { display: flex; align-items: center; justify-content: space-between; gap: 16px 24px; padding: 14px 0; box-shadow: inset 0 1px 0 var(--line); flex-wrap: wrap; }
+  .tk-list label { display: flex; align-items: center; gap: 16px; cursor: pointer; flex: 1 1 280px; min-width: 0; }
+  .tk-list input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .tk-box { flex: 0 0 auto; width: 28px; height: 28px; border: 2px solid var(--ink); background: var(--white); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-weight: 700; }
+  .tk-list input:checked + .tk-box { background: var(--red); }
+  .tk-list input:checked + .tk-box::after { content: "✓"; }
+  .tk-list input:focus-visible + .tk-box { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .tk-list input:checked ~ .tk-t b { text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 2px; }
+  .tk-t { display: flex; flex-direction: column; gap: 2px; }
+  .tk-t b { font-family: var(--mono); font-size: 17px; }
+  .tk-list .btn { flex: 0 0 auto; }
+  .tk-stub { position: relative; align-items: center; justify-content: center !important; text-align: center; gap: 10px; box-shadow: inset 2px 0 0 0 transparent; background-image: linear-gradient(var(--ink) 50%, transparent 50%); background-size: 2px 14px; background-repeat: repeat-y; background-position: left top; background-color: var(--white); }
+  .tk-stub::before, .tk-stub::after { content: ""; position: absolute; left: -15px; width: 28px; height: 28px; border-radius: 50%; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+  .tk-stub::before { top: -14px; } .tk-stub::after { bottom: -14px; }
+  .cs .tk-stub { background-image: linear-gradient(90deg, var(--ink) 50%, transparent 50%); background-size: 14px 2px; background-repeat: repeat-x; }
+  .cs .tk-stub::before { top: -15px; left: -14px; } .cs .tk-stub::after { top: -15px; bottom: auto; left: auto; right: -14px; }
+  .tk-stamp { font-family: var(--mono); font-weight: 700; font-size: 40px; line-height: 1; color: var(--red); border: 4px solid var(--red); padding: 8px 14px; transform: rotate(-8deg); margin-bottom: 8px; }
+  .tk-when { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; font-size: 14px; }
+  .tk-count { font-size: 14px; }
+  .tk-count #tkDone { color: var(--red); font-weight: 700; }
+  /* reto: estructura del dibujo de Ivan (26 nov), 16 x 11 casillas */
+  .reto-h { padding-top: var(--u); }
+  @media (max-height: 1040px) { .reto-h { padding-top: 0; } }
+  .reto-one .hero-t { font-size: clamp(26px, 2.6vw, 40px); }
+  .reto-one .title { gap: 8px !important; }
+  .reto-one .quote { --pad: 28px; align-self: stretch; justify-content: center; }
+  .reto-one .quote .hero-q { font-size: clamp(24px, 2.2vw, 34px); }
+  .reto-one .quote p { font-size: 16px; line-height: 1.4; }
+  .reto-one .main { padding-top: 28px; padding-bottom: 28px; justify-content: center; }
+  .reto-one .main h2 { font-size: clamp(22px, 2vw, 30px); }
+  .reto-one .main p:not(.tag) { font-size: 16px; line-height: 1.5; }
+  .reto-one .trk-h { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .reto-one .trk-b { width: calc(var(--u) - 20px); height: calc(var(--u) - 20px); font-size: 20px; }
+  .reto-one .trk-p { background: #ECECEF; outline: none; padding: 20px 32px; }
+  .reto-one .trk-d .num { font-size: 36px; }
+  .reto-one .trk-d h3 { font-size: 19px; }
+  .c16 .reto-one, .c12 .reto-one { grid-template-rows: repeat(11, minmax(var(--u), auto)); }
+  .c16 .reto-one > *, .c12 .reto-one > * { min-height: 0 !important; align-self: stretch; }
+  .c16 .reto-one .trk, .c12 .reto-one .trk { display: contents; }
+  .c16 .reto-one .trk-row, .c12 .reto-one .trk-row { grid-row: 1 / 12; height: auto; grid-template-columns: var(--u); grid-template-rows: repeat(11, minmax(var(--u), auto)); }
+  .reto-one .trk-row li:nth-child(1) { grid-row: 1; } .reto-one .trk-row li:nth-child(2) { grid-row: 3; } .reto-one .trk-row li:nth-child(3) { grid-row: 5; }
+  .reto-one .trk-row li:nth-child(4) { grid-row: 7; } .reto-one .trk-row li:nth-child(5) { grid-row: 9; } .reto-one .trk-row li:nth-child(6) { grid-row: 11; }
+  .cs .reto-one .trk-row li { grid-row: auto !important; }
+  .c16 .reto-one .title { grid-column: 5 / 12; grid-row: 1 / 4; }
+  .c16 .reto-one .quote { grid-column: 2 / 6; grid-row: 4 / 7; }
+  .c16 .reto-one .main { grid-column: 6 / 15; grid-row: 4 / 9; }
+  .c16 .reto-one .trk-row { grid-column: 16 / 17; }
+  .c16 .reto-one .trk-p { grid-column: 1 / 15; grid-row: 10 / 12; }
+  .c12 .reto-one .title { grid-column: 3 / 10; grid-row: 1 / 4; }
+  .c12 .reto-one .quote { grid-column: 1 / 4; grid-row: 4 / 7; --pad: 20px; }
+  .c12 .reto-one .main { grid-column: 4 / 11; grid-row: 4 / 9; }
+  .c12 .reto-one .reto-facts { grid-template-columns: 1fr; gap: 10px; }
+  .c12 .reto-one .trk-row { grid-column: 12 / 13; }
+  .c12 .reto-one .trk-p { grid-column: 1 / 11; grid-row: 10 / 12; }
+  .cs .reto-one .trk { display: grid; grid-template-columns: 1fr; margin-top: var(--u); }
+  .cs .reto-one .trk-row { grid-template-columns: repeat(6, 1fr); grid-template-rows: var(--u); height: auto; }
+  .cs .reto-one .trk-b { width: 40px; height: 40px; font-size: 17px; }
+  .cs .reto-one .trk-p { min-height: calc(2 * var(--u)); padding: 20px; }
+  .home #sea { padding-top: calc(2 * var(--u)); } /* 2 casillas de hueco entre bloques, como máximo (Ivan 26 nov) */
+  .reto footer { padding-top: calc(2 * var(--u)); }
+  /* portada: estadísticas públicas, solo totales (Ivan 26 nov) */
+  .live { display: flex; flex-direction: column; min-width: 0; }
+  .lv-top { gap: 8px !important; }
+  .lv-cd { font-family: var(--mono); font-weight: 700; font-size: clamp(40px, 4.4vw, 68px); line-height: 1; letter-spacing: -.02em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .lv-cd small { font-size: .5em; font-weight: 500; margin: 0 .25em 0 .05em; }
+  .lv-kpis { display: grid; grid-template-columns: repeat(4, 1fr); outline: 1px solid var(--line); outline-offset: -1px; background: var(--white); }
+  .lv-kpis > div { padding: 16px 20px; min-width: 0; }
+  .lv-kpis > div + div { border-left: 1px solid var(--line); }
+  .lv-n { font-family: var(--mono); font-weight: 700; font-size: clamp(30px, 3vw, 44px); line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .lv-cards { display: grid; grid-template-columns: 1fr 1fr; flex: 1 1 auto; }
+  .lv-card { margin: 0; justify-content: flex-start !important; padding: 20px 24px !important; }
+  .lv-card h3 { font-size: 17px; font-weight: 700; }
+  .lv-uni { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 18px; }
+  .lv-uni svg { width: 120px; height: 120px; flex: 0 0 auto; }
+  .lv-uni ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-width: 0; }
+  .lv-uni li { display: grid; grid-template-columns: 12px 1fr auto; gap: 8px; align-items: center; font-size: 14px; }
+  .lv-uni li i { width: 12px; height: 12px; border-radius: 2px; }
+  .lv-uni li b { font-family: var(--mono); font-size: 14px; white-space: nowrap; }
+  .lv-uni ul { min-width: 120px !important; }
+  .lv-days svg { width: 100%; height: auto; display: block; }
+  .lv-ax { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .lv-grid { stroke: var(--grid); stroke-width: 1; }
+  .lv-line { fill: none; stroke: var(--red); stroke-width: 2; stroke-linejoin: round; }
+  .lv-area { fill: var(--red); opacity: .12; }
+  .c12 .live, .c12 #sea .dark { min-height: 0; }
+  .c12 .lv-kpis { grid-template-columns: repeat(2, 1fr); }
+  .c12 .lv-kpis > div:nth-child(3) { border-left: 0; }
+  .c12 .lv-kpis > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .cs .lv-kpis { grid-template-columns: repeat(2, 1fr); }
+  .cs .lv-cards { grid-template-columns: 1fr; }
+  /* móvil (Ivan 26 nov): sin pie, reto sin catering y con los 6 módulos en lista, botones que no se quedan pillados */
+  .cs footer, .page.cs ~ footer, body:has(.page.cs) footer { display: none; }
+  .cs.reto .reto-one .quote { display: none; }
+  .cs .reto-one .trk-row, .cs .reto-one .trk-hint { display: none; }
+  .cs .reto-one .trk-p { display: flex; flex-direction: column; align-items: stretch; gap: 14px; background: var(--white); outline: 1px solid var(--line); outline-offset: -1px; padding: 24px 20px; }
+  .cs .reto-one .trk-p > * { grid-area: auto; }
+  .cs .reto-one .trk-d { opacity: 1; visibility: visible; transform: none; align-items: flex-start; gap: 14px; }
+  .cs .reto-one .trk-d .num { font-size: 22px; min-width: 18px; }
+  .cs .reto-one .trk-d h3 { font-size: 16px; }
+  .cs .reto-one .trk-h { position: static; width: auto; height: auto; clip: auto; overflow: visible; white-space: normal; padding: 0 0 12px; }
+  .cs .reto-one .trk { margin-top: var(--u); }
+  .cs.reto { padding-bottom: var(--u); }
+  .cs .nav .brand > .mtitle { font-size: 14px; }
+  @media (hover: none) { .btn:hover, .btn:focus, .btn:active { transform: none !important; box-shadow: none !important; } }
+  .footL { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 24px !important; }
+</style>
+</head>
+<body>
+
+
+<div class="page c16 home">
+
+  <div class="nav">
+    <div class="col">
+      <a class="brand" href="./"><span class="mtitle">Hackathon AWS x SEA</span></a>
+      <nav class="links" aria-label="Principal">
+        <a href="./" aria-current="page">Inicio</a>
+        <a href="reto.html">El reto</a>
+        <a class="btn o sm" href="app/">Panel →</a>
+      </nav>
+    </div>
+  </div>
+  <header id="inicio" aria-labelledby="evento-t">
+      <div class="col">
+        <div class="deco" aria-hidden="true" style="left:calc(1 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--red)"></div>
+        <div class="deco" aria-hidden="true" style="left:calc(-1 * var(--u));top:calc(4 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
+        <div class="deco" aria-hidden="true" style="left:calc(4 * var(--u));top:calc(7 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--ink)"></div>
+        <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(6 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--red)"></div>
+        <div class="ev hero-ev">
+          <div class="blk in dark title snap">
+            <p class="mono hero-k">SEA × AWS Student Builder Group:</p>
+            <h1 id="evento-t" class="hero-t">Hackathon AWS x SEA</h1>
+          </div>
+          <div class="blk in quote snap">
+            <h3 class="hero-q">COMO<br>SEA<span class="dot">.</span></h3>
+            <p>"¿Cómo montamos la plataforma de la SEA?"</p>
+          </div>
+          <div class="blk in main snap">
+            <p class="tag">UC3M · Puerta de Toledo</p>
+            <h2>Monta la plataforma de SEA en AWS</h2>
+            <div class="meta">
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="1"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Jueves 3 dic 2026</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>18:00</span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg><a href="https://www.google.com/maps/search/?api=1&amp;query=UC3M+Campus+Puerta+de+Toledo+Madrid" target="_blank" rel="noopener">UC3M Campus de Puerta de Toledo</a></span>
+            </div>
+            <p>Una tarde para montar en AWS las primeras piezas de la plataforma de SEA. 100&nbsp;$ en créditos AWS, entrada y catering gratis, sin experiencia previa y en equipos de hasta 2. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.</p>
+            <div class="ctas">
+              <a class="btn o" href="app/#registro">Regístrate →</a>
+              <a class="btn d" href="reto.html">Ver el reto →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+  </header>
+
+
+  <main>
+    <section id="sea" aria-labelledby="sea-t">
+      <div class="col">
+        <div class="deco" aria-hidden="true" style="left:calc(16 * var(--u));top:calc(0 * var(--u));width:calc(2 * var(--u));height:calc(2 * var(--u));background:var(--ink)"></div>
+        <div class="deco" aria-hidden="true" style="left:calc(-2 * var(--u));top:calc(3 * var(--u));width:calc(1 * var(--u));height:calc(1 * var(--u));background:var(--red)"></div>
+        <div class="g two">
+          <div class="blk in dark snap">
+            <p class="eyebrow o">02 / Quiénes somos</p>
+            <h2 id="sea-t">¿Qué es SEA?</h2>
+            <p class="lead muted">SEA (Spanish Entrepreneurship Association) es la plataforma que une a los clubs de emprendimiento universitario de Madrid para promover el emprendimiento entre estudiantes.</p>
+          </div>
+          <div class="live" id="live" aria-labelledby="lv-t">
+            <div class="lv-top blk in snap">
+              <p class="eyebrow" id="lv-t">03 / En directo · Falta para el hackathon</p>
+              <p class="lv-cd" id="lvCd" aria-live="off">– d –:–:–</p>
+              <p class="small muted">Jueves 3 de diciembre · 18:00 · UC3M Puerta de Toledo</p>
+            </div>
+            <div class="lv-kpis">
+              <div><p class="lv-n" id="lvTotal">–</p><p class="small">inscritos</p></div>
+              <div><p class="lv-n" id="lvToday">–</p><p class="small">hoy</p></div>
+              <div><p class="lv-n" id="lvTeams">–</p><p class="small">equipos</p></div>
+              <div><p class="lv-n" id="lvInTeam">–</p><p class="small">personas en equipo</p></div>
+            </div>
+            <div class="lv-cards">
+              <figure class="blk in lv-card"><figcaption><h3>Por universidad</h3></figcaption><div id="lvUni" class="lv-uni"><p class="small muted">Cargando…</p></div></figure>
+              <figure class="blk in lv-card"><figcaption><h3>Inscripciones por día</h3></figcaption><div id="lvDays" class="lv-days"><p class="small muted">Cargando…</p></div></figure>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer aria-label="Pie" style="position:relative">
+    <div class="col">
+      <div class="g foot">
+        <div class="blk in footL snap">
+          <div>
+            <p class="ven">Como SEA, pero ven.</p>
+            <p class="unis">UC3M / UPM / ICADE / UCJC / UCM / UEM</p>
+          </div>
+          <svg class="arrow" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 86 L80 20 M30 18 H82 V70" fill="none" stroke="currentColor" stroke-width="11" stroke-linecap="square"/></svg>
+        </div>
+        <nav class="blk dark in snap" aria-label="Enlaces del pie" style="flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:8px 32px">
+          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/" target="_blank" rel="noopener">Meetup</a>
+          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
+          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="reto.html">El reto</a>
+          <a class="mono" style="color:var(--white);font-size:15px;font-weight:700;padding:8px 0" href="app/#registro">Apúntate</a>
+        </nav>
+      </div>
+      <div class="blk in snap" style="align-items:center;text-align:center;padding-top:16px;padding-bottom:16px">
+        <p class="mono" style="font-size:13px;color:var(--muted)">Hackathon organizado por estudiantes de SEA (Spanish Entrepreneurship Association) y el AWS Student Builder Group at UC3M. © 2026</p>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+(() => {
+  const page = document.querySelector('.page');
+  const root = document.documentElement;
+  let busy = false, raf;
+  function layout() {
+    if (busy) return; busy = true;
+    const W = page.clientWidth;
+    let U = W >= 1312 ? 80 : W >= 800 ? 64 : 48;
+    root.style.setProperty('--u', U + 'px');
+    const fit = Math.floor((W - 32) / U);
+    const mode = fit >= 16 ? 'c16' : fit >= 12 ? 'c12' : 'cs';
+    const cells = mode === 'c16' ? 16 : mode === 'c12' ? 12 : fit;
+    page.classList.remove('c16', 'c12', 'cs'); page.classList.add(mode);
+    page.classList.toggle('wide', fit >= 20);
+    const colW = cells * U, left = Math.round((W - colW) / 2);
+    document.querySelectorAll('.nav .col').forEach(c => { c.style.marginLeft = left + 'px'; });
+    root.style.setProperty('--cx', left + 'px');
+    root.style.setProperty('--gx', left + 'px');
+    page.querySelectorAll('.col').forEach(c => { c.style.width = colW + 'px'; c.style.maxWidth = 'none'; });
+    const snaps = [...page.querySelectorAll('.snap')];
+    page.classList.add('measuring');
+    snaps.forEach(e => { e.style.minHeight = ''; });
+    const hs = snaps.map(e => e.getBoundingClientRect().height);
+    snaps.forEach((e, i) => { e.style.minHeight = Math.max(1, Math.ceil((hs[i] - 0.5) / U)) * U + 'px'; });
+    page.classList.remove('measuring');
+    busy = false;
+  }
+  window.addEventListener('resize', () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); });
+  layout();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layout);
+  new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(layout); }).observe(page);
+})();
+</script>
+<script>
+// Estadísticas públicas de la portada: solo totales, sin nombres ni emails (GET /api/public/stats)
+(() => {
+  const $ = (id) => document.getElementById(id); if (!$('live')) return;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  const sv = (t, a = {}, ...k) => { const n = document.createElementNS(SVGNS, t); for (const [x, v] of Object.entries(a)) n.setAttribute(x, v); n.append(...k); return n; };
+  const COL = { UC3M: '#FF462E', UPM: '#141414', ICADE: '#8A8A91', UCJC: '#F2A398', UCM: '#9E1F12', UEM: '#55555B', Otra: '#D4D4D8' };
+  let start = new Date('2026-12-03T18:00:00+01:00');
+  const pad = (n) => String(n).padStart(2, '0');
+  function tick() {
+    let s = Math.max(0, Math.floor((start - Date.now()) / 1000));
+    if (!s) { $('lvCd').textContent = '¡Ya ha empezado!'; return; }
+    const d = Math.floor(s / 86400); s %= 86400;
+    $('lvCd').innerHTML = `${d}<small>d</small>${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+  }
+  tick(); setInterval(tick, 1000);
+  fetch('/api/public/config').then(r => r.ok ? r.json() : null).then(j => { const e = j && j.config && j.config.eventStart; if (e && !isNaN(Date.parse(e))) { start = new Date(e); tick(); } }).catch(() => {});
+  function donut(by) {
+    const rows = Object.entries(by).filter(([, n]) => n > 0), total = rows.reduce((a, [, n]) => a + n, 0), box = $('lvUni');
+    if (!total) { box.innerHTML = '<p class="small muted">Todavía no hay inscripciones.</p>'; return; }
+    const S = 120, r = 56, ri = 36, c = S / 2; let ang = -Math.PI / 2;
+    const svg = sv('svg', { viewBox: `0 0 ${S} ${S}`, role: 'img', 'aria-label': 'Por universidad: ' + rows.map(([u, n]) => `${u} ${Math.round(n / total * 100)} %`).join(', ') });
+    const pt = (a, rr) => `${(c + rr * Math.cos(a)).toFixed(2)},${(c + rr * Math.sin(a)).toFixed(2)}`;
+    rows.forEach(([u, n]) => {
+      const sw = n / total * Math.PI * 2, a2 = ang + sw, big = sw > Math.PI ? 1 : 0;
+      const d = rows.length === 1 ? `M${c - r},${c}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0M${c - ri},${c}a${ri},${ri} 0 1,1 ${2 * ri},0a${ri},${ri} 0 1,1 ${-2 * ri},0`
+        : `M${pt(ang, r)}A${r},${r} 0 ${big},1 ${pt(a2, r)}L${pt(a2, ri)}A${ri},${ri} 0 ${big},0 ${pt(ang, ri)}Z`;
+      svg.append(sv('path', { d, fill: COL[u], 'fill-rule': 'evenodd', stroke: '#fff', 'stroke-width': rows.length > 1 ? 2 : 0 })); ang = a2;
+    });
+    const ul = document.createElement('ul');
+    rows.sort((a, b) => b[1] - a[1]).forEach(([u, n]) => { const li = document.createElement('li'); li.innerHTML = `<i style="background:${COL[u]}"></i><span>${u}</span><b>${Math.round(n / total * 100)} %</b>`; ul.append(li); });
+    box.replaceChildren(svg, ul);
+  }
+  function days(ds) {
+    const box = $('lvDays'); if (!ds.length) { box.innerHTML = '<p class="small muted">Todavía no hay inscripciones.</p>'; return; }
+    const W = 280, H = 130, L = 26, R = 8, T = 8, B = 22, max = Math.max(4, ...ds.map(d => d.total)), yMax = Math.ceil(max / 4) * 4;
+    const x = (i) => L + (ds.length < 2 ? (W - L - R) / 2 : i / (ds.length - 1) * (W - L - R)), y = (v) => T + (1 - v / yMax) * (H - T - B);
+    const svg = sv('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `Inscripciones acumuladas por día: ${ds[ds.length - 1].total} en total` });
+    for (let k = 0; k <= 2; k++) { const v = yMax * k / 2; svg.append(sv('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'lv-grid' }), sv('text', { x: L - 6, y: y(v) + 4, 'text-anchor': 'end', class: 'lv-ax' }, String(v))); }
+    const lab = (s) => s.slice(8, 10) + '/' + s.slice(5, 7);
+    const idx = ds.length < 2 ? [0] : [0, ds.length - 1];
+    idx.forEach((i, k) => svg.append(sv('text', { x: x(i), y: H - 6, 'text-anchor': idx.length < 2 ? 'middle' : k ? 'end' : 'start', class: 'lv-ax' }, lab(ds[i].date))));
+    const d = ds.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(p.total).toFixed(1)}`).join('');
+    if (ds.length > 1) svg.append(sv('path', { d: d + `L${x(ds.length - 1)},${y(0)}L${x(0)},${y(0)}Z`, class: 'lv-area' }));
+    svg.append(sv('path', { d, class: 'lv-line' }), sv('circle', { cx: x(ds.length - 1), cy: y(ds[ds.length - 1].total), r: 4, fill: 'var(--red)' }));
+    box.replaceChildren(svg);
+  }
+  const load = () => fetch('/api/public/stats').then(r => r.ok ? r.json() : Promise.reject()).then(s => {
+    $('lvTotal').textContent = s.total; $('lvToday').textContent = '+' + s.today; $('lvTeams').textContent = s.teams; $('lvInTeam').textContent = s.inTeam;
+    donut(s.byUni || {}); days(s.days || []);
+  }).catch(() => { ['lvUni', 'lvDays'].forEach(i => { $(i).innerHTML = '<p class="small muted">Los datos aparecen en la web publicada.</p>'; }); });
+  load(); setInterval(load, 60000);
+})();
+</script>
+
+</body>
+</html>
