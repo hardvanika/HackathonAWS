@@ -526,7 +526,7 @@ JS = r"""
 
 HEAD = """<title>{title}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Viernes 4 de diciembre de 2026, 18:00, UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap">
 <style>{css}</style>
@@ -648,12 +648,12 @@ INDEX = f"""
             <p>"¿Cómo montamos la plataforma de la SEA?"</p>
           </div>
           <div class="blk in main snap">
-            <p class="tag">UC3M · Puerta de Toledo</p>
+            <p class="tag">UC3M · Puerta de Toledo · Aula 0.A.07</p>
             <h2>Monta la plataforma de SEA en AWS</h2>
             <div class="meta">
               <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="1"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Viernes 4 dic 2026</span>
               <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>18:00</span>
-              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg><a href="https://www.google.com/maps/search/?api=1&amp;query=UC3M+Campus+Puerta+de+Toledo+Madrid" target="_blank" rel="noopener">UC3M Campus de Puerta de Toledo</a></span>
+              <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"></path><circle cx="12" cy="9.5" r="2.5"></circle></svg><a href="https://www.google.com/maps/search/?api=1&amp;query=UC3M+Campus+Puerta+de+Toledo+Madrid" target="_blank" rel="noopener">UC3M Puerta de Toledo, aula 0.A.07</a></span>
             </div>
             <p>Una tarde para montar en AWS las primeras piezas de la plataforma de SEA. 100&nbsp;$ en créditos AWS, entrada y catering gratis, sin experiencia previa y en equipos de hasta 2. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.</p>
             <div class="ctas">
@@ -681,7 +681,7 @@ INDEX = f"""
             <div class="lv-top blk in snap">
               <p class="eyebrow" id="lv-t">En directo · Falta para el hackathon</p>
               <p class="lv-cd" id="lvCd" aria-live="off">– d –:–:–</p>
-              <p class="small muted">Viernes 4 de diciembre · 18:00 · UC3M Puerta de Toledo</p>
+              <p class="small muted">Viernes 4 de diciembre · 18:00 · UC3M Puerta de Toledo, aula 0.A.07</p>
             </div>
             <div class="lv-kpis snap">
               <div><p class="lv-n" id="lvTotal">–</p><p class="small">inscritos</p></div>

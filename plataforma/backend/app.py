@@ -49,7 +49,7 @@ TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{20,64}$")
 DEFAULT_CONFIG = {
     "eventName": "Hackathon AWS Student Builder Group at UC3M x SEA",
     "eventStart": "2026-12-04T18:00:00+01:00",
-    "location": "UC3M, campus de Puerta de Toledo",
+    "location": "UC3M, campus de Puerta de Toledo, aula 0.A.07",
     "submissionDeadline": "2026-12-04T20:00:00+01:00",  # viernes 4 dic, 20:00: 2 h después del inicio (Ivan, 26 nov)
     # Timeline del dia. Hora vacia = "por confirmar". Se edita desde el panel (Ajustes).
     "agenda": [

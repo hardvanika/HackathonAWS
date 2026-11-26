@@ -12,10 +12,12 @@ echo "Tabla: $TABLE"
 aws dynamodb update-item --region "$REGION" --table-name "$TABLE" \
   --key '{"PK":{"S":"CONFIG"},"SK":{"S":"EVENT"}}' \
   --condition-expression "attribute_exists(PK)" \
-  --update-expression "SET goal = :g, eventStart = :s, submissionDeadline = :d, links = :l" \
+  --update-expression "SET goal = :g, eventStart = :s, #loc = :loc, submissionDeadline = :d, links = :l" \
+  --expression-attribute-names '{"#loc":"location"}' \
   --expression-attribute-values '{
     ":g": {"N": "70"},
     ":s": {"S": "2026-12-04T18:00:00+01:00"},
+    ":loc": {"S": "UC3M, campus de Puerta de Toledo, aula 0.A.07"},
     ":d": {"S": "2026-12-04T20:00:00+01:00"},
     ":l": {"M": {
       "website": {"S": "https://db1470yzxtmai.cloudfront.net/"},
