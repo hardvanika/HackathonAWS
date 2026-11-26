@@ -424,6 +424,9 @@ THEME = r"""
   .dark .hero-k, .dark .hero-t { color: var(--white) !important; }
   body:has(.page:not(.cs)) { background-color: var(--paper); background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: var(--u) var(--u); background-position: var(--gx, 0px) 0; }
   body:has(.page:not(.cs)) footer { padding-bottom: var(--u); }
+  .cs .nav .nav-panel { display: none !important; }
+  .page:not(.cs):has(footer) { padding-bottom: 0 !important; }
+  .page:not(.cs) footer { padding-bottom: var(--u); }
   .footL { flex-direction: row !important; align-items: center !important; justify-content: space-between !important; gap: 24px !important; }
 """
 CSS = CSS + THEME
@@ -539,6 +542,7 @@ def nav(current):
       <nav class="links" aria-label="Principal">
         <a href="./"{home_cur}>Inicio</a>
         <a href="reto.html"{reto_cur}>El reto</a>
+        <a class="btn o sm nav-panel" href="app/">Panel →</a>
       </nav>
     </div>
   </div>"""
