@@ -38,4 +38,4 @@ aws s3 sync "$BUILD/" "s3://$(out SiteBucket)/" --delete --region "$REGION"
 aws cloudfront create-invalidation --distribution-id "$(out DistributionId)" --paths "/*" >/dev/null
 
 echo "Listo: $(out SiteUrl)/app/"
-echo "Admins fijos: ${ADMIN_EMAILS:-ninguno}. El resto se dan desde el panel (Organización > Admins)."
+N_ADMINS=$(awk -F, 'NF{print NF}' <<<"${ADMIN_EMAILS:-}"); echo "Admins fijos: ${N_ADMINS:-0}. El resto se dan desde el panel (Organización > Admins)."

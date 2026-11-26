@@ -1,0 +1,35 @@
+name: Desplegar
+
+on:
+  push:
+    branches: [main]
+    paths: ["onepager/**", "plataforma/**", ".github/workflows/deploy.yml"]
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # para el rol OIDC de AWS (sin claves guardadas)
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ vars.AWS_ROLE_ARN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generar la web
+        run: cd onepager && python3 generar.py
+
+      - name: Credenciales AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: eu-north-1
+          mask-aws-account-id: true
+
+      - name: Actualizar configuración y desplegar
+        run: cd plataforma && bash actualizar.sh
