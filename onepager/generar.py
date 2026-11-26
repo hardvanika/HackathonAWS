@@ -527,6 +527,14 @@ JS = r"""
 HEAD = """<title>{title}</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Hackathon del AWS Student Builder Group at UC3M x SEA. Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Hackathon AWS x SEA">
+<meta property="og:title" content="{title} · Viernes 4 dic, 18:00">
+<meta property="og:description" content="Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
+<meta property="og:locale" content="es_ES">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{title} · Viernes 4 dic, 18:00">
+<meta name="twitter:description" content="Viernes 4 de diciembre de 2026, 18:00, aula 0.A.07 de UC3M Puerta de Toledo. Gratis, con catering, solo o en pareja. Para estudiantes de UC3M, UPM, ICADE, UCJC, UCM y Universidad Europea de Madrid.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap">
 <style>{css}</style>
