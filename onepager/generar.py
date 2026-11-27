@@ -623,6 +623,7 @@ FOOT = """
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://chat.whatsapp.com/IuoL9mjiGwz3IfgPREzg9T" target="_blank" rel="noopener">WhatsApp</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://www.meetup.com/aws-sbg-at-charles-iii-univ-of-madrid-colmenarejo-campus/events/317598343/" target="_blank" rel="noopener">Meetup</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://builder.aws.com" target="_blank" rel="noopener">AWS Builder Center</a>
+          <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="https://kiro.dev" target="_blank" rel="noopener">Kiro</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="reto.html">El reto</a>
           <a class="mono" style="color:var(--white);font-size:15px;padding:8px 0" href="app/#registro">Apúntate</a>
         </nav>
@@ -745,6 +746,7 @@ RETO = f"""<!doctype html>
             <div><div><h3>Solo o en pareja</h3><p class="small">Equipos de 2 personas como máximo.</p></div></div>
             <div><div><h3>Builder Center + 100&nbsp;$</h3><p class="small">Acceso a AWS Builder Center y 100&nbsp;$ en créditos para la consola.</p></div></div>
           </div>
+          <p class="small">¿Quieres programar con IA? Puedes usar <a href="https://kiro.dev" target="_blank" rel="noopener">Kiro</a>, el IDE con IA de AWS. Es opcional.</p>
         </div>
         <div class="trk" id="trk" role="group" aria-labelledby="mods-t">
           <div class="trk-h snap">
