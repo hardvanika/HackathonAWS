@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 # Despliega la plataforma en la cuenta de SEA.
 # Requisitos: AWS CLI v2 con credenciales de la cuenta (perfil activo).
-#   SES_IDENTITY_ARN=arn:aws:ses:eu-south-2:<cuenta>:identity/dominio.es \
-#   SES_FROM=hackathon@dominio.es ./deploy.sh
+#   Correos por SES: bash ses.sh remitente@dominio.es (verifica la identidad y redespliega).
 set -euo pipefail
 cd "$(dirname "$0")"
 
 REGION="${REGION:-eu-north-1}"  # la cuenta "Hackathon AWS" solo permite eu-north-1
 STACK="${STACK:-hackathon-plataforma}"
-SES_IDENTITY_ARN="${SES_IDENTITY_ARN:-}"
-SES_FROM="${SES_FROM:-}"
+# SES: si no se pasan, se mantienen los del despliegue anterior (los guarda ses.sh)
+prev() { aws cloudformation describe-stacks --stack-name "$STACK" --region "$REGION" \
+  --query "Stacks[0].Parameters[?ParameterKey=='$1'].ParameterValue" --output text 2>/dev/null | sed 's/^None$//' || true; }
+SES_IDENTITY_ARN="${SES_IDENTITY_ARN:-$(prev SesIdentityArn)}"
+SES_FROM="${SES_FROM:-$(prev SesFromEmail)}"
+ADMIN_EMAILS="${ADMIN_EMAILS:-$(prev AdminEmails)}"  # admins fijos, separados por comas (por defecto, los de antes)
 CHECKER="${CHECKER:-false}"
-ADMIN_EMAILS="${ADMIN_EMAILS:-}"  # admins fijos, separados por comas
 EXTRA=()
 [[ -n "${DOMAIN:-}" ]] && EXTRA+=("DomainName=$DOMAIN" "CertificateArn=${CERT_ARN:?Falta CERT_ARN (us-east-1)}" "HostedZoneId=${ZONE_ID:-}")
 
@@ -38,4 +40,6 @@ aws s3 sync "$BUILD/" "s3://$(out SiteBucket)/" --delete --region "$REGION"
 aws cloudfront create-invalidation --distribution-id "$(out DistributionId)" --paths "/*" >/dev/null
 
 echo "Listo: $(out SiteUrl)/app/"
+if [[ -n "$SES_FROM" ]]; then echo "Correos (confirmar email y recuperar contraseña): por SES desde $SES_FROM"
+else echo "Correos: remitente por defecto de Cognito (max. 50/dia). Para usar SES: bash ses.sh tu@email"; fi
 N_ADMINS=$(awk -F, 'NF{print NF}' <<<"${ADMIN_EMAILS:-}"); echo "Admins fijos: ${N_ADMINS:-0}. El resto se dan desde el panel (Organización > Admins)."

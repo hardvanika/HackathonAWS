@@ -2,7 +2,8 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Plataforma de participantes del Hackathon AWS Student Builder Group at UC3M x SEA.
-  S3 + CloudFront (web), Cognito (login por codigo al email), API Gateway HTTP + Lambda + DynamoDB.
+  S3 + CloudFront (web), Cognito (email + contraseña; codigos de confirmacion y recuperacion por SES),
+  API Gateway HTTP + Lambda + DynamoDB.
 
 Parameters:
   Stage:
@@ -11,7 +12,7 @@ Parameters:
   SesIdentityArn:
     Type: String
     Default: ''
-    Description: ARN de la identidad verificada en SES (dominio o email) con la que Cognito manda los codigos de acceso.
+    Description: ARN de la identidad verificada en SES (dominio o email, misma region) con la que Cognito manda los codigos. Vacio = remitente por defecto de Cognito (max. 50 emails/dia).
   SesFromEmail:
     Type: String
     Default: ''
@@ -90,7 +91,7 @@ Resources:
         AllowAdminCreateUserOnly: true   # el alta pasa por /api/register
       Policies:
         SignInPolicy:
-          AllowedFirstAuthFactors: !If [HasSes, [PASSWORD, EMAIL_OTP], [PASSWORD]]
+          AllowedFirstAuthFactors: [PASSWORD]
         PasswordPolicy:
           MinimumLength: 8
           RequireLowercase: false
@@ -102,8 +103,26 @@ Resources:
         - HasSes
         - EmailSendingAccount: DEVELOPER
           SourceArn: !Ref SesIdentityArn
-          From: !Sub 'Hackathon SBG UC3M x SEA <${SesFromEmail}>'
+          From: !Sub 'Hackathon AWS x SEA <${SesFromEmail}>'
+          ReplyToEmailAddress: !Ref SesFromEmail
         - EmailSendingAccount: COGNITO_DEFAULT
+      # El mismo correo sirve para confirmar el email y para «¿Olvidaste tu contraseña?»
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailSubject: 'Tu código · Hackathon AWS x SEA'
+        EmailMessage: >-
+          <div style="background:#ffffff;padding:32px 16px;font-family:'Noto Sans',Arial,Helvetica,sans-serif;color:#141414">
+          <div style="max-width:480px;margin:0 auto;border:1px solid #141414">
+          <div style="height:8px;background:#FF462E"></div>
+          <div style="padding:28px 28px 8px">
+          <p style="margin:0 0 6px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#FF462E">Hackathon AWS x SEA</p>
+          <h1 style="margin:0 0 16px;font-size:24px;line-height:1.25">Tu código</h1>
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.5">Escríbelo en la plataforma del hackathon para confirmar tu email o para crear una contraseña nueva.</p>
+          <p style="margin:0 0 20px;font-family:'Noto Sans Mono',Consolas,monospace;font-size:34px;font-weight:700;letter-spacing:.18em;border-left:4px solid #FF462E;padding:8px 0 8px 16px">{####}</p>
+          <p style="margin:0 0 24px;font-size:13px;line-height:1.5;color:#55565B">Caduca en unos minutos. Si no lo has pedido tú, ignora este correo: tu cuenta sigue igual.</p>
+          </div>
+          <div style="padding:14px 28px;border-top:1px solid #E4E4E7;font-size:12px;color:#55565B">AWS Student Builder Group at UC3M x SEA · Spanish Entrepreneurship Association</div>
+          </div></div>
       AccountRecoverySetting:
         RecoveryMechanisms:
           - {Name: verified_email, Priority: 1}
@@ -154,14 +173,15 @@ Resources:
           TABLE: !Ref Table
           USER_POOL_ID: !Ref UserPool
           USER_POOL_CLIENT_ID: !Ref UserPoolClient
-          AUTH_MODE: !If [HasSes, otp, password]
+          AUTH_MODE: password   # email + contraseña; SES solo manda los codigos de confirmacion y recuperacion
           ADMIN_EMAILS: !Ref AdminEmails
           CHECKER_TEMPLATE_URL: !If [HasChecker, !Sub 'https://${CheckerBucket.RegionalDomainName}/checker/checkin.yaml', '']
       Policies:
         - DynamoDBCrudPolicy: {TableName: !Ref Table}
         - Statement:
             - Effect: Allow
-              Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminSetUserPassword, cognito-idp:AdminDeleteUser]
+              Action: [cognito-idp:AdminCreateUser, cognito-idp:AdminSetUserPassword, cognito-idp:AdminDeleteUser,
+                       cognito-idp:AdminGetUser, cognito-idp:AdminUpdateUserAttributes]
               Resource: !GetAtt UserPool.Arn
       Events:
         PublicConfig: {Type: HttpApi, Properties: {ApiId: !Ref Api, Method: GET, Path: /api/public/config, Auth: {Authorizer: NONE}}}

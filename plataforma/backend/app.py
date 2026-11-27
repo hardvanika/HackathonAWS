@@ -142,6 +142,22 @@ def email_of(claims):
     return e
 
 
+def email_is_verified(email):
+    try:
+        u = cognito.admin_get_user(UserPoolId=POOL, Username=email)
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "UserNotFoundException":
+            return False
+        raise
+    attrs = {a["Name"]: a["Value"] for a in u.get("UserAttributes", [])}
+    return attrs.get("email_verified", "false").lower() == "true"
+
+
+def claims_verified(claims):
+    # El authorizer JWT de HTTP API pasa los booleanos como texto
+    return str(claims.get("email_verified", "")).lower() == "true"
+
+
 def is_admin(claims):
     # HTTP API serializa los arrays como "[admins otro]"
     if "admins" in str(claims.get("cognito:groups", "")):
@@ -257,11 +273,14 @@ def register(event):
     if data.get("consent") is not True:
         raise HttpError(400, "Hace falta aceptar el tratamiento de datos")
 
+    reclaimed = False
     try:
+        # El email queda SIN verificar: tras entrar, la web pide el codigo que Cognito manda por SES
+        # (GetUserAttributeVerificationCode). Hasta confirmarlo, la API no deja usar la cuenta.
         cognito.admin_create_user(
             UserPoolId=POOL, Username=email, MessageAction="SUPPRESS",
             UserAttributes=[{"Name": "email", "Value": email},
-                            {"Name": "email_verified", "Value": "true"},
+                            {"Name": "email_verified", "Value": "false"},
                             {"Name": "name", "Value": name}],
         )
         # Contrasena aleatoria que nadie conoce: deja al usuario CONFIRMED para entrar con codigo por email.
@@ -271,14 +290,27 @@ def register(event):
     except ClientError as e:
         code = e.response["Error"]["Code"]
         if code == "UsernameExistsException" and AUTH_MODE == "password":
-            raise HttpError(409, "Ya hay una cuenta con ese email. Entra con tu contraseña.")
+            # Si nadie ha confirmado ese email todavia, la cuenta es de quien lo confirme:
+            # se le pone la nueva contraseña (asi nadie puede "reservar" el email de otra persona).
+            if email_is_verified(email):
+                raise HttpError(409, "Ya hay una cuenta con ese email. Entra con tu contraseña o usa «¿Olvidaste tu contraseña?».")
+            try:
+                cognito.admin_set_user_password(UserPoolId=POOL, Username=email, Password=password, Permanent=True)
+                cognito.admin_update_user_attributes(UserPoolId=POOL, Username=email,
+                                                     UserAttributes=[{"Name": "name", "Value": name}])
+            except ClientError as e2:
+                if e2.response["Error"]["Code"] == "InvalidPasswordException":
+                    raise HttpError(400, "La contraseña no es válida: usa al menos 8 caracteres")
+                raise
+            reclaimed = True
+            code = None
         if code == "InvalidPasswordException":
             try:
                 cognito.admin_delete_user(UserPoolId=POOL, Username=email)  # no dejar cuentas sin contraseña valida
             except ClientError:
                 pass
             raise HttpError(400, "La contraseña no es válida: usa al menos 8 caracteres")
-        if code != "UsernameExistsException":
+        if code and code != "UsernameExistsException":
             raise
 
     allowed = in_meetup(email, name)
@@ -295,8 +327,13 @@ def register(event):
     except ClientError as e:
         if e.response["Error"]["Code"] != "TransactionCanceledException":
             raise
-        # ya existia el perfil: no pasa nada, que inicie sesion
-    return resp(200, {"ok": True})
+        # ya existia el perfil: si se ha recuperado una cuenta sin confirmar, se actualizan sus datos
+        if reclaimed:
+            table.update_item(Key={"PK": f"USER#{email}", "SK": "PROFILE"},
+                              UpdateExpression="SET #n = :n, university = :u, meetupVerified = :m, consentAt = :c",
+                              ExpressionAttributeNames={"#n": "name"},
+                              ExpressionAttributeValues={":n": name, ":u": uni, ":m": allowed, ":c": now_iso()})
+    return resp(200, {"ok": True, "verifyEmail": True})
 
 
 def checkin(event):
@@ -684,6 +721,10 @@ ROUTES = {
     ("PUT", "/api/admin/config"): admin_config,
 }
 
+# Sin login. El resto exige un ID token con el email confirmado.
+PUBLIC_ROUTES = {("GET", "/api/public/config"), ("GET", "/api/public/stats"),
+                 ("POST", "/api/register"), ("POST", "/api/checkin")}
+
 
 def handler(event, context):
     rc = event.get("requestContext", {}).get("http", {})
@@ -691,6 +732,8 @@ def handler(event, context):
     if not fn:
         return resp(404, {"error": "Ruta no encontrada"})
     try:
+        if (rc.get("method"), event.get("rawPath")) not in PUBLIC_ROUTES and not claims_verified(claims_of(event)):
+            raise HttpError(403, "EMAIL_NO_CONFIRMADO")
         return fn(event)
     except HttpError as e:
         return resp(e.status, {"error": e.msg})
