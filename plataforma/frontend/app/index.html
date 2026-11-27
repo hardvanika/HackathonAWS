@@ -174,6 +174,10 @@
   .acts input:not([type=checkbox]) { flex: 1 1 200px; width: auto; }
   .acts .btn { align-self: center; }
   .msg { font-size: 14px; min-height: 1.2em; margin-top: 4px; }
+  .lnk { font: inherit; font-size: 14px; background: none; border: 0; padding: 4px 0; color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--red, #FF462E); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+  .lnk:hover, .lnk:focus-visible { color: var(--red, #FF462E); }
+  .sent { font-size: 15px; line-height: 1.45; margin: 0 0 8px; }
+  .sent b { font-weight: 600; word-break: break-all; }
   .msg:empty { display: none; }
   .msg.err { color: #B42318; } .msg.okm { color: #067647; }
   .dark .msg.err { color: #FDA29B; } .dark .msg.okm { color: #75E0A7; }
@@ -498,8 +502,35 @@
                   <input id="lCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
                 </div>
               </div>
-              <div class="acts"><button class="btn" id="loginBtn">Entrar →</button></div>
+              <div class="acts"><button class="btn" id="loginBtn">Entrar →</button><button type="button" class="lnk hidden" id="forgotLink">¿Olvidaste tu contraseña?</button></div>
               <div class="msg" id="loginMsg" role="status"></div>
+            </form>
+            <form id="forgotForm" class="blk in snap hidden" style="justify-content:flex-start">
+              <h2>Recuperar contraseña</h2>
+              <div>
+                <p class="sent" id="fIntro">Escribe el email de tu cuenta y te mandamos un código para crear una contraseña nueva.</p>
+                <label for="fEmail">Email</label>
+                <input id="fEmail" type="email" autocomplete="email" required>
+                <div id="fStep2" class="hidden">
+                  <label for="fCode">Código del correo</label>
+                  <input id="fCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8">
+                  <label for="fPass">Contraseña nueva (mínimo 8 caracteres)</label>
+                  <input id="fPass" type="password" autocomplete="new-password" minlength="8" maxlength="128">
+                </div>
+              </div>
+              <div class="acts"><button class="btn" id="forgotBtn">Enviar código →</button><button type="button" class="lnk hidden" id="fResend">Reenviar código</button><button type="button" class="lnk" id="fBack">Volver a iniciar sesión</button></div>
+              <div class="msg" id="forgotMsg" role="status"></div>
+            </form>
+            <form id="verifyForm" class="blk in snap hidden" style="justify-content:flex-start">
+              <h2>Confirma tu email</h2>
+              <div>
+                <p class="sent" id="vIntro">Te hemos mandado un código por correo. Escríbelo aquí para activar tu cuenta.</p>
+                <label for="vCode">Código del correo</label>
+                <input id="vCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required>
+                <p class="small muted">¿No lo ves? Mira en spam o promociones, o pide otro.</p>
+              </div>
+              <div class="acts"><button class="btn" id="verifyBtn">Confirmar →</button><button type="button" class="lnk" id="vResend">Reenviar código</button><button type="button" class="lnk" id="vOut">Usar otra cuenta</button></div>
+              <div class="msg" id="verifyMsg" role="status"></div>
             </form>
             <form id="signupForm" class="blk in snap hidden" style="justify-content:flex-start">
               <h2>Crear cuenta</h2>
@@ -801,7 +832,13 @@
     const j = await r.json().catch(() => ({}));
     if (!r.ok) {
       const t = String(j.__type || '');
-      if (t.includes('NotAuthorized') || t.includes('UserNotFound')) throw new Error('Email o contraseña incorrectos');
+      if (t.includes('CodeMismatch')) throw new Error('Código incorrecto. Revísalo o pide otro.');
+      if (t.includes('ExpiredCode')) throw new Error('El código ha caducado. Pide otro.');
+      if (t.includes('LimitExceeded') || t.includes('TooManyRequests') || t.includes('TooManyFailed')) throw new Error('Demasiados intentos. Espera unos minutos y vuelve a probar.');
+      if (t.includes('CodeDeliveryFailure')) throw new Error('No hemos podido mandarte el correo. Prueba otra vez en un rato.');
+      if (t.includes('InvalidPassword')) throw new Error('La contraseña tiene que tener al menos 8 caracteres.');
+      if (t.includes('InvalidParameter') && /verified|registered/i.test(j.message || '')) throw new Error('Ese email aún no está confirmado. Vuelve a crear la cuenta con el mismo email y confírmalo.');
+      if (t.includes('NotAuthorized') || t.includes('UserNotFound')) throw new Error(target === 'InitiateAuth' ? 'Email o contraseña incorrectos' : 'Tu sesión ha caducado. Vuelve a entrar.');
       throw new Error(j.message || t || 'Error de inicio de sesión');
     }
     return j;
@@ -831,8 +868,24 @@
   }
   function saveTokens(a, keepRefresh) {
     const t = store.get('tok') || {};
-    store.set('tok', { id: a.IdToken, exp: Date.now() + (a.ExpiresIn - 60) * 1000, refresh: a.RefreshToken || t.refresh });
+    store.set('tok', { id: a.IdToken, acc: a.AccessToken, exp: Date.now() + (a.ExpiresIn - 60) * 1000, refresh: a.RefreshToken || t.refresh });
   }
+  // Pide tokens nuevos ya (p. ej. tras confirmar el email, para que el ID token diga email_verified=true)
+  async function refreshNow() {
+    const t = store.get('tok'); if (!t || !t.refresh) throw new Error('Tu sesión ha caducado. Vuelve a entrar.');
+    const r = await cognito('InitiateAuth', { AuthFlow: 'REFRESH_TOKEN_AUTH', ClientId: AUTH.clientId, AuthParameters: { REFRESH_TOKEN: t.refresh } });
+    saveTokens(r.AuthenticationResult);
+  }
+  async function accessToken() {
+    const t = store.get('tok');
+    if (t && t.acc && Date.now() < t.exp) return t.acc;
+    await refreshNow(); return store.get('tok').acc;
+  }
+  function tokenClaims() {
+    const t = store.get('tok'); if (!t || !t.id) return {};
+    try { const b = t.id.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'); return JSON.parse(decodeURIComponent(escape(atob(b)))); } catch { return {}; }
+  }
+  const emailVerified = () => { const v = tokenClaims().email_verified; return v === true || v === 'true'; };
   async function idToken() {
     const t = store.get('tok');
     if (!t) return null;
@@ -883,16 +936,18 @@
     if (!target) return;
     btns.forEach(b => box.appendChild(b)); target.appendChild(box);
   }
-  function fitAuth() { const auth = !$('#auth').classList.contains('hidden'); const login = !$('#loginForm').classList.contains('hidden'); document.querySelector('.page').classList.toggle('fit', (auth && login) || !$('#admin').classList.contains('hidden')); }
+  function fitAuth() { const auth = !$('#auth').classList.contains('hidden'); const login = $('#signupForm').classList.contains('hidden'); document.querySelector('.page').classList.toggle('fit', (auth && login) || !$('#admin').classList.contains('hidden')); }
+  // Formularios de acceso: login | signup | forgot | verify
+  function authView(v) {
+    ['login', 'signup', 'forgot', 'verify'].forEach(k => $('#' + k + 'Form').classList.toggle('hidden', k !== v));
+    $('#signupSteps').classList.toggle('hidden', v !== 'signup');
+    $('#auth .tabs').classList.toggle('hidden', v === 'verify');
+    $$('#auth .tabs button').forEach(x => x.setAttribute('aria-selected', String(x.dataset.tab === (v === 'signup' ? 'signup' : 'login'))));
+    fitAuth();
+  }
   function showAuth() { show('#auth'); $('#logout').classList.add('hidden'); $('#adminToggle').classList.add('hidden'); }
 
-  $$('#auth .tabs button').forEach(b => b.onclick = () => {
-    $$('#auth .tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
-    $('#loginForm').classList.toggle('hidden', b.dataset.tab !== 'login');
-    $('#signupForm').classList.toggle('hidden', b.dataset.tab !== 'signup');
-    $('#signupSteps').classList.toggle('hidden', b.dataset.tab !== 'signup');
-    fitAuth();
-  });
+  $$('#auth .tabs button').forEach(b => b.onclick = () => authView(b.dataset.tab));
   function openSignup() { if (/^#(registro|signup)$/.test(location.hash)) { const t = $('#auth .tabs button[data-tab="signup"]'); if (t) t.click(); } }
   openSignup(); window.addEventListener('hashchange', openSignup);
 
@@ -900,7 +955,7 @@
     try {
       if (pwMode()) {
         await passwordLogin($('#lEmail').value.trim().toLowerCase(), $('#lPass').value);
-        say('#loginMsg', ''); await load(); return;
+        say('#loginMsg', ''); await afterLogin(true); return;
       }
       if ($('#otpBox').classList.contains('hidden')) {
         await startLogin($('#lEmail').value.trim().toLowerCase());
@@ -919,7 +974,7 @@
       const email = $('#sEmail').value.trim().toLowerCase();
       const password = $('#sPass').value;
       await api('POST', '/register', { email, name: $('#sName').value.trim(), university: $('#sUni').value, consent: $('#sConsent').checked, password });
-      if (pwMode()) { await passwordLogin(email, password); await load(); return; }
+      if (pwMode()) { await passwordLogin(email, password); say('#signupMsg', ''); await afterLogin(true); return; }
       $$('#auth .tabs button')[0].click();
       $('#lEmail').value = email;
       await startLogin(email);
@@ -929,6 +984,62 @@
   }); };
 
   $('#logout').onclick = () => { store.del('tok'); location.reload(); };
+
+  // ---------- Confirmar email (código por SES) ----------
+  async function afterLogin(sendCode) { if (emailVerified()) return load(); return showVerify(sendCode); }
+  async function sendVerifyCode() {
+    await cognito('GetUserAttributeVerificationCode', { AccessToken: await accessToken(), AttributeName: 'email' });
+  }
+  async function showVerify(sendCode) {
+    showAuth(); authView('verify');
+    const email = tokenClaims().email || '';
+    $('#vIntro').innerHTML = '';
+    $('#vIntro').append(sendCode ? 'Te acabamos de mandar un código a ' : 'Para activar tu cuenta, escribe el código que te mandamos a ', el('b', { text: email }), '. ' + (sendCode ? 'Escríbelo aquí para activar tu cuenta.' : 'Si ya no lo tienes, pide otro.'));
+    $('#vCode').value = ''; $('#vCode').focus();
+    if (sendCode) { try { await sendVerifyCode(); } catch (err) { say('#verifyMsg', err.message); } }
+  }
+  $('#verifyForm').onsubmit = (e) => { e.preventDefault(); busy($('#verifyBtn'), async () => {
+    try {
+      await cognito('VerifyUserAttribute', { AccessToken: await accessToken(), AttributeName: 'email', Code: $('#vCode').value.trim() });
+      await refreshNow(); say('#verifyMsg', '¡Email confirmado!', true); await load();
+    } catch (err) { say('#verifyMsg', err.message); }
+  }); };
+  $('#vResend').onclick = () => busy($('#vResend'), async () => {
+    try { await sendVerifyCode(); say('#verifyMsg', 'Código reenviado. Mira tu correo.', true); } catch (err) { say('#verifyMsg', err.message); }
+  });
+  $('#vOut').onclick = () => { store.del('tok'); location.reload(); };
+
+  // ---------- ¿Olvidaste tu contraseña? ----------
+  function forgotReset() {
+    $('#fStep2').classList.add('hidden'); $('#fResend').classList.add('hidden');
+    $('#fCode').required = false; $('#fPass').required = false; $('#fEmail').readOnly = false;
+    $('#forgotBtn').textContent = 'Enviar código →';
+    $('#fIntro').textContent = 'Escribe el email de tu cuenta y te mandamos un código para crear una contraseña nueva.';
+    say('#forgotMsg', '');
+  }
+  async function sendForgot() {
+    const email = $('#fEmail').value.trim().toLowerCase();
+    await cognito('ForgotPassword', { ClientId: AUTH.clientId, Username: email });
+    $('#fStep2').classList.remove('hidden'); $('#fResend').classList.remove('hidden');
+    $('#fCode').required = true; $('#fPass').required = true; $('#fEmail').readOnly = true;
+    $('#forgotBtn').textContent = 'Cambiar contraseña →';
+    $('#fIntro').innerHTML = ''; $('#fIntro').append('Si hay una cuenta con ', el('b', { text: email }), ', te ha llegado un código. Escríbelo con tu contraseña nueva.');
+    $('#fCode').focus();
+  }
+  $('#forgotLink').onclick = () => { forgotReset(); $('#fEmail').value = $('#lEmail').value.trim(); authView('forgot'); ($('#fEmail').value ? $('#forgotBtn') : $('#fEmail')).focus(); };
+  $('#fBack').onclick = () => { authView('login'); if ($('#fEmail').value) $('#lEmail').value = $('#fEmail').value; };
+  $('#fResend').onclick = () => busy($('#fResend'), async () => {
+    try { await sendForgot(); say('#forgotMsg', 'Código reenviado.', true); } catch (err) { say('#forgotMsg', err.message); }
+  });
+  $('#forgotForm').onsubmit = (e) => { e.preventDefault(); busy($('#forgotBtn'), async () => {
+    try {
+      if ($('#fStep2').classList.contains('hidden')) { await sendForgot(); return; }
+      const email = $('#fEmail').value.trim().toLowerCase(), password = $('#fPass').value;
+      await cognito('ConfirmForgotPassword', { ClientId: AUTH.clientId, Username: email, ConfirmationCode: $('#fCode').value.trim(), Password: password });
+      say('#forgotMsg', 'Contraseña cambiada. Entrando…', true);
+      await passwordLogin(email, password); forgotReset(); await afterLogin(false);
+    } catch (err) { say('#forgotMsg', err.message); }
+  }); };
   $('#adminToggle').onclick = () => {
     const inAdmin = !$('#admin').classList.contains('hidden');
     if (inAdmin) { show('#dash'); $('#adminToggle').textContent = 'Organización'; }
@@ -936,7 +1047,10 @@
   };
 
   async function load() {
-    try { ME = await api('GET', '/me'); } catch (e) { if (!$('#auth').classList.contains('hidden')) say('#loginMsg', e.message); else showAuth(); return; }
+    try { ME = await api('GET', '/me'); } catch (e) {
+      if (e.message === 'EMAIL_NO_CONFIRMADO') { showVerify(false); return; }
+      if (!$('#auth').classList.contains('hidden')) say('#loginMsg', e.message); else showAuth(); return;
+    }
     $('#logout').classList.remove('hidden');
     $('#adminToggle').classList.toggle('hidden', !ME.isAdmin);
     if (TIMER_MODE && ME.isAdmin) { openTimerView(); return; }
@@ -1363,13 +1477,13 @@
     try { const r = await fetch('/api/public/config').then(r => r.json()); AUTH = r.auth;
       if (pwMode()) {
         $('#pwBox').classList.remove('hidden'); $('#sPwBox').classList.remove('hidden');
-        $('#lPass').required = true; $('#sPass').required = true;
+        $('#lPass').required = true; $('#sPass').required = true; $('#forgotLink').classList.remove('hidden');
         $('#loginBtn').textContent = 'Entrar';
         $('#authHint').textContent = 'Entra con tu email y tu contraseña.';
       } else { $('#authHint').textContent = 'Entra con tu email. Te mandamos un código, sin contraseñas.'; }
     }
     catch { $('#authHint').textContent = 'No se pudo conectar con la plataforma. Prueba a recargar en un momento.'; show('#auth'); return; }
-    if (await idToken()) load(); else showAuth();
+    if (await idToken()) { if (emailVerified()) load(); else showVerify(false); } else showAuth();
   })();
 })();
 </script>
